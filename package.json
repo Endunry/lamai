@@ -1,0 +1,28 @@
+{
+  "name": "lamai",
+  "version": "1.0.0",
+  "description": "pacman clone ai as a study project",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Raqhael/lamai.git"
+  },
+  "keywords": [
+    "lamai",
+    "ai",
+    "ki",
+    "dhbw-horb",
+    "dhbw"
+  ],
+  "author": ["Raqhael", "FabiKl"],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Raqhael/lamai/issues"
+  },
+  "homepage": "https://github.com/Raqhael/lamai#readme"
+}
