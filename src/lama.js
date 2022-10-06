@@ -1,31 +1,40 @@
 
 class Lama extends Entity{
 
-    constructor( atPosition, size) {
+    constructor( atPosition, size, calculated=false) {
         // this.pos = atPosition.mult(size);
-        super(atPosition.x*SIZE, atPosition.y*SIZE);
+        super(atPosition.x, atPosition.y);
+        if(!calculated){
+            this.pos = this.pos.mult(size);
+        }
         this.lastpos = this.pos;
         this._size = size;
         this.points = 0;
         this.queuedir = null;
         this.dir = createVector(0, 0);
         this.img = loadImage("./src/Lama.png");
-    }
-
-    resetQueue(){
-        this.queuedir = null;
+        this.flipped = false;
     }
 
     draw() {
 
         push();
-
-        translate(this.pos);
+        translate(this.pos.x + this._size/2, this.pos.y + this._size/2);
         noStroke();
+        // flip the lama if he is moving left
+        if(this.dir && (this.dir.x < 0 || this.flipped)){
+            if(this.dir.x > 0){
+                this.flipped = false;
+            }else{
+                scale(-1,1);
+                this.flipped = true;
+            }
+        }
 
+        
+        image(this.img, 0, 0, this._size, this._size);
         fill("yellow");
         // include img
-        image(this.img, 0, 0, this._size, this._size);
         // p5.ellipse(0, 0, this._size);
 
         pop();
@@ -70,8 +79,15 @@ class Lama extends Entity{
         }
         if(!this.checkForCollision()){
             this.pos.add(this.dir);
+            if(this.pos.x > width){
+                this.pos.x = 0;
+            }
+            if(this.pos.x < 0){
+                this.pos.x = width-SIZE;
+            }
         }
     }
+
 
     checkForCollision(dirtocheck = this.dir){
         // check for collision with borders
@@ -92,4 +108,5 @@ class Lama extends Entity{
 
     }
 }
+
 

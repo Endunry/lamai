@@ -1,11 +1,11 @@
 class Border extends Entity {
 
-    constructor(atPosition, size, calculated = false) {
+    constructor(atPosition, calculated = false) {
         super(atPosition.x, atPosition.y);
         if (!calculated) {
-            this.pos = atPosition.mult(size);
+            this.pos = atPosition.mult(SIZE);
         }
-        this._size = size;
+        this._size = SIZE;
     }
 
     draw() {

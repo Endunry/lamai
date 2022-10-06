@@ -2,9 +2,94 @@ body{
     margin: 0;
 }
 
+body > canvas:focus{
+    overflow:hidden;
+}
+
 #app{
     width: 100vw;
     margin-top: 3vh;
     display:flex;
     justify-content: center;
+}
+
+#wrapper{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap:3rem;
+}
+#toolbar{
+    display:flex;
+    justify-content: space-between;
+    width: 900px;
+    align-items: center;
+}
+
+#toolbar > *{
+    cursor: pointer;
+}
+
+#toolbar.disabled{
+    opacity: 0.1;
+    pointer-events: none;
+}
+.border{
+    width:50px;
+    height:50px;
+    background:red;
+}
+
+.lama{
+    width:50px;
+    height:50px;
+    background:url('./src/Lama.png');
+    background-size: contain;
+}
+
+.spawn{
+    width:50px;
+    height:50px;
+    /* pic of a pacman ghost */
+    background:url('https://ssb.wiki.gallery/images/c/cb/Ghosts_%28Pac-Man%29.png');
+    background-size: contain;
+}
+
+.delete{
+    width:50px;
+    height:50px;
+    background:url('./src/delete.png');
+    background-size: contain;
+}
+
+.cookie{
+    width: 30px;
+    height: 30px;
+    background: orange;
+    border-radius: 50%;
+}
+
+.powerup{
+    width: 50px;
+    height: 50px;
+    background: purple;
+    border-radius: 50%;
+}
+
+#mode{
+    gap:1rem;
+    display:flex;
+    justify-content: center;
+    text-align: center;
+    width: 900px;
+    align-items: center;
+}
+#mode div{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+#mode #currentSelection{
+    transform: scale(0.4);
 }

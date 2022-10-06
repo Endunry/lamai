@@ -18,7 +18,17 @@ class Collectible extends Entity{
     }
 
     onCollision(other){
-        map.pop(this);
+        map.splice(map.indexOf(this), 1);
+    }
+}
+
+Collectible.prototype.toJSON = function(){
+    return {
+        x: this.pos.x,
+        y: this.pos.y,
+        width: this.width,
+        height: this.height,
+        color: this.color
     }
 }
 
