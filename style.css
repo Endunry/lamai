@@ -41,6 +41,36 @@ body > canvas:focus{
     background:red;
 }
 
+#allGerturds{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.5rem;
+    cursor: default;
+}
+
+#allGerturds > *{
+    width:40px;
+    height:40px;
+    background: url(./src/Gertrud.png);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+#gertrud1{
+    filter: hue-rotate(20deg) saturate(7) contrast(1.5);
+}
+#gertrud2{
+    filter: hue-rotate(300deg) saturate(10) contrast(1.5);
+}
+#gertrud3{
+    filter: hue-rotate(340deg) saturate(7) contrast(1.5);
+}
+#gertrud4{
+    filter: hue-rotate(200deg) saturate(7) contrast(1.5);
+}
+
 .lama{
     width:50px;
     height:50px;

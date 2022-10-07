@@ -20,6 +20,14 @@ class Collectible extends Entity{
     onCollision(other){
         map.splice(map.indexOf(this), 1);
     }
+
+    isColliding(pos, size, dir) {
+        const actualPosition = createVector(this.pos.x + SIZE/2, this.pos.y + SIZE/2);
+        const actualOtherPosition = createVector(pos.x + SIZE/2, pos.y + SIZE/2);
+        const radius = this.width/2;
+        const distance = actualPosition.dist(actualOtherPosition);
+        return distance < radius+SIZE/2+LAMA_SPEED;
+    }
 }
 
 Collectible.prototype.toJSON = function(){
