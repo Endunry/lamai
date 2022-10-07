@@ -40,7 +40,7 @@ window.onload = function () {
 }
 
 function setup() {
-
+    determineBorderTypes()
     const canvas = createCanvas(WIDTH, HEIGHT);
     canvas.parent('app');
      imageMode(CENTER);
@@ -63,6 +63,43 @@ function draw() {
     lama && text(`Punkte: ${lama.points}`, textx, texty, WIDTH, SIZE + 5);
     fill('blue');
     // console.log(Date.now() - STARTTIME);
+}
+
+function getBorderNeighbors(borders, x, y) {
+    let top = borders[x] ? borders[x][y - 1] : undefined
+    let right = borders[x + 1] ? borders[x + 1][y] : undefined
+    let bottom = borders[x] ? borders[x][y + 1] : undefined
+    let left = borders[x - 1] ? borders[x - 1][y] : undefined
+    let top_right = borders[x + 1] ? borders[x + 1][y - 1] : undefined
+    let bottom_right = borders[x + 1] ? borders[x + 1][y + 1] : undefined
+    let bottom_left = borders[x - 1] ? borders[x - 1][y + 1] : undefined
+    let top_left = borders[x - 1] ? borders[x - 1][y - 1] : undefined
+    return [top, right, bottom, left, top_right, bottom_right, bottom_left, top_left]
+}
+
+function determineBorderTypes() {
+    let borders = []
+    for (let x = 0; x < GRID_WIDTH; x++) {
+        borders.push([])
+        for (let y = 0; y < GRID_HEIGHT; y++) {
+            borders[x][y] = undefined
+        }
+    }
+    for (entity of map) {
+        if (entity instanceof Border) {
+            let x = entity.pos.x / SIZE
+            let y = entity.pos.y / SIZE
+            borders[x][y] = entity
+        }
+    }
+    for (let x = 0; x < GRID_WIDTH; x++) {
+        for (let y = 0; y < GRID_HEIGHT; y++) {
+            if (borders[x][y]) {
+                let neighbors = getBorderNeighbors(borders, x, y)
+                borders[x][y].setNeighbors(neighbors)
+            }
+        }
+    }
 }
 
 function timeLoop() {
@@ -100,14 +137,14 @@ function mousePressed() {
             map = map.filter(
                 (entity) => !(entity.pos.x === x && entity.pos.y === y),
             );
-            return;
+            break;
         default:
             return;
     }
-    if (isOverlapping) return;
-    if (insertedItem) {
+    if (!isOverlapping && insertedItem) {
         map.push(insertedItem);
     }
+    determineBorderTypes()
 }
 
 function mouseDragged(event) {
