@@ -6,11 +6,15 @@ const WIDTH = GRID_WIDTH * SIZE;
 const HEIGHT = GRID_HEIGHT * SIZE;
 
 const BACKGROUND = 'black';
-const TIMESECONDS = 0.2;
 
+const LAMA_SPEED = 0.1; // "How many grids will it move per cycle"
+const TIMESECONDS = 0.01; // "In which frequency will the timeLoop function be called" (1000*TIMESECONDS)
+const GERTRUD_SPEED = LAMA_SPEED;
 let textx = 0;
 let texty = 0;
 
+
+let gertruds = {"gertrud1": null, "gertrud2": null, "gertrud3": null, "gertrud4": null};
 let lama;
 let currentSelection = null;
 let map = [];
@@ -35,8 +39,6 @@ window.onload = function () {
     map = [...barriers, ...cookies, ...powerups];
     lama = lamaser;
     setup();
-
-
 }
 
 function setup() {
@@ -61,12 +63,23 @@ function draw() {
     map && map.forEach((border) => border.draw());
     lama && lama.listenForKeys();
     lama && text(`Punkte: ${lama.points}`, textx, texty, WIDTH, SIZE + 5);
+    Object.keys(gertruds).forEach((gertrud) => {
+        if(gertruds[gertrud] != null){
+            gertruds[gertrud].draw();
+        }
+    });
     fill('blue');
     // console.log(Date.now() - STARTTIME);
 }
 
 function timeLoop() {
     lama && lama.update();
+    Object.keys(gertruds).forEach((gertrud) => {
+        if(gertruds[gertrud] != null){
+            gertruds[gertrud].update();
+        }
+    }
+    );
 }
 
 function mousePressed() {
@@ -75,7 +88,6 @@ function mousePressed() {
     let x = Math.floor(mouseX / SIZE) * SIZE;
     let y = Math.floor(mouseY / SIZE) * SIZE;
     // Check if the coords are in the map
-    
     if (x < 0 || x > WIDTH - SIZE || y < 0 || y > HEIGHT - SIZE) return;
     const isOverlapping = map.some((entity) => entity.pos.x === x && entity.pos.y === y) || lama.pos.x === x && lama.pos.y === y;
     switch (currentSelection) {
@@ -88,9 +100,14 @@ function mousePressed() {
         case 'powerup':
             insertedItem = new Power(x, y, true);
             break;
-        case 'spawner':
-            // insertedItem = new Spawner(x, y);
-            break;
+        case 'gertrud1':
+        case 'gertrud2':
+        case 'gertrud3':
+        case 'gertrud4':
+            if(!isOverlapping){
+                gertruds[currentSelection] =  new Gertrud(x, y,currentSelection[currentSelection.length-1],  true);
+            }
+                break;
         case 'lama':
             if(!isOverlapping){
                 lama = new Lama(createVector(x, y), SIZE, true);

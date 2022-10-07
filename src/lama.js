@@ -1,19 +1,10 @@
 
-class Lama extends Entity{
+class Lama extends Moveable{
 
     constructor( atPosition, size, calculated=false) {
-        // this.pos = atPosition.mult(size);
-        super(atPosition.x, atPosition.y);
-        if(!calculated){
-            this.pos = this.pos.mult(size);
-        }
-        this.lastpos = this.pos;
-        this._size = size;
+        super(atPosition.x, atPosition.y, "./src/Lama.png", calculated);
         this.points = 0;
-        this.queuedir = null;
-        this.dir = createVector(0, 0);
-        this.img = loadImage("./src/Lama.png");
-        this.flipped = false;
+        this._size = size;
     }
 
     draw() {
@@ -52,17 +43,18 @@ class Lama extends Entity{
 
     listenForKeys() {
         const keys = this.getKeys();
+        const power = this._size * LAMA_SPEED;
         if(keys.up){
-            this.queuedir = createVector(0, -this._size);
+            this.queuedir = createVector(0, -power);
         }
         if(keys.down){
-            this.queuedir = createVector(0, this._size);
+            this.queuedir = createVector(0, power);
         }
         if(keys.left){
-            this.queuedir = createVector(-this._size, 0);
+            this.queuedir = createVector(-power, 0);
         }
         if(keys.right){
-            this.queuedir = createVector(this._size, 0);
+            this.queuedir = createVector(power, 0);
         }
         // if(keys.stop){
         //     this.queuedir = createVector(0, 0);
@@ -71,43 +63,26 @@ class Lama extends Entity{
     }
 
 
-    update(){
-        console.log(this.queuedir?.x, this.queuedir?.y);
-        this.lastpos = this.pos;
-        if(!this.checkForCollision(this.queuedir)){
-            this.dir = this.queuedir;
-            // this.queuedir = createVector(0, 0);
-        }
-        if(!this.checkForCollision()){
-            this.pos.add(this.dir);
-            if(this.pos.x > width){
-                this.pos.x = 0;
-            }
-            if(this.pos.x < 0){
-                this.pos.x = width-SIZE;
-            }
-        }
-    }
+    // update(){
+    //     console.log(this.queuedir?.x, this.queuedir?.y);
+    //     this.lastpos = this.pos;
+    //     if(!this.checkForCollision(this.queuedir)){
+    //         this.dir = this.queuedir;
+    //         // this.queuedir = createVector(0, 0);
+    //     }
+    //     if(!this.checkForCollision()){
+    //         this.pos.add(this.dir);
+    //         if(this.pos.x > width){
+    //             this.pos.x = 0;
+    //         }
+    //         if(this.pos.x < 0){
+    //             this.pos.x = width-SIZE;
+    //         }
+    //     }
+    // }
 
 
-    checkForCollision(dirtocheck = this.dir){
-        // check for collision with borders
-        if(!dirtocheck) return;
-        return map.some(entity => {
-            if(entity.pos.x === this.pos.x + dirtocheck.x && entity.pos.y === this.pos.y + dirtocheck.y){
-                entity.onCollision(this);
-                switch(entity.constructor.name){
-                    case "Border":
-                        return true;
-                    case "Cookie":
-                        this.points++;
-                        console.log(this.points)
-                        return false;
-                }
-            }
-        });
-
-    }
+   
 }
 
 
