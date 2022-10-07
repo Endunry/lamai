@@ -18,7 +18,10 @@ class Collectible extends Entity{
     }
 
     onCollision(other){
-        map.splice(map.indexOf(this), 1);
+        if(other.constructor.name == "Lama"){
+            other.points++;
+            map.splice(map.indexOf(this), 1);
+        }
     }
 
     isColliding(pos, size, dir) {

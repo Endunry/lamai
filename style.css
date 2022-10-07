@@ -58,16 +58,16 @@ body > canvas:focus{
     cursor: pointer;
 }
 
-#gertrud1{
+.gertrud1{
     filter: hue-rotate(20deg) saturate(7) contrast(1.5);
 }
-#gertrud2{
+.gertrud2{
     filter: hue-rotate(300deg) saturate(10) contrast(1.5);
 }
-#gertrud3{
+.gertrud3{
     filter: hue-rotate(340deg) saturate(7) contrast(1.5);
 }
-#gertrud4{
+.gertrud4{
     filter: hue-rotate(200deg) saturate(7) contrast(1.5);
 }
 

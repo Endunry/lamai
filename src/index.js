@@ -5,8 +5,10 @@ const GRID_HEIGHT = 35;
 const WIDTH = GRID_WIDTH * SIZE;
 const HEIGHT = GRID_HEIGHT * SIZE;
 
-const BACKGROUND = 'black';
+const DEBUG = true;
 
+const BACKGROUND = 'black';
+let BLINKY_START_POS;
 const LAMA_SPEED = 0.1; // "How many grids will it move per cycle"
 const TIMESECONDS = 0.01; // "In which frequency will the timeLoop function be called" (1000*TIMESECONDS)
 const GERTRUD_SPEED = LAMA_SPEED;
@@ -14,14 +16,24 @@ let textx = 0;
 let texty = 0;
 
 
-let gertruds = {"gertrud1": null, "gertrud2": null, "gertrud3": null, "gertrud4": null};
+let pinky, inky, clyde, blinky;
 let lama;
+
 let currentSelection = null;
 let map = [];
 
+let started = false;
+
 let timeInterval;
 window.addEventListener("keydown", function (e) {
-    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+        if(!started){
+            started = true;
+            inky && inky.start();
+            pinky && pinky.start();
+            clyde && clyde.start();
+            blinky && blinky.start();
+        }
         e.preventDefault();
     }
 }, false);
@@ -34,7 +46,11 @@ window.onload = function () {
     let powerups = JSON.parse(`[${mapData.powerups}]`).map((powerup) => new Power(powerup.x, powerup.y, true));
     // let spawner = mapData.spawner;
     let lamaser = new Lama(createVector(mapData.lama.x, mapData.lama.y), SIZE, true);
-    console.log(barriers);
+    pinky = new Pinky(mapData.pinky.x, mapData.pinky.y, true);
+    inky = new Inky(mapData.inky.x, mapData.inky.y, true);
+    clyde = new Clyde(mapData.clyde.x, mapData.clyde.y, true);
+    blinky = new Blinky(mapData.blinky.x, mapData.blinky.y, true);
+    BLINKY_START_POS = blinky.pos.copy();
     map = [];
     map = [...barriers, ...cookies, ...powerups];
     lama = lamaser;
@@ -59,17 +75,28 @@ function setup() {
 
 function draw() {
     background(BACKGROUND);
+    if(DEBUG){
+
+        stroke(255);
+        strokeWeight(1);
+        for (let i = 0; i < GRID_WIDTH; i++) {
+            line(i * SIZE, 0, i * SIZE, HEIGHT);
+        }
+        for (let i = 0; i < GRID_HEIGHT; i++) {
+            line(0, i * SIZE, WIDTH, i * SIZE);
+        }
+    }
+
     lama && lama.draw();
     map && map.forEach((border) => border.draw());
     lama && lama.listenForKeys();
     lama && text(`Punkte: ${lama.points}`, textx, texty, WIDTH, SIZE + 5);
-    Object.keys(gertruds).forEach((gertrud) => {
-        if(gertruds[gertrud] != null){
-            gertruds[gertrud].draw();
-        }
-    });
-    fill('blue');
-    // console.log(Date.now() - STARTTIME);
+    inky && inky.draw();
+    pinky && pinky.draw();
+    clyde && clyde.draw();
+    blinky && blinky.draw();
+
+
 }
 
 function getBorderNeighbors(borders, x, y) {
@@ -111,12 +138,10 @@ function determineBorderTypes() {
 
 function timeLoop() {
     lama && lama.update();
-    Object.keys(gertruds).forEach((gertrud) => {
-        if(gertruds[gertrud] != null){
-            gertruds[gertrud].update();
-        }
-    }
-    );
+    inky && inky.update();
+    pinky && pinky.update();
+    clyde && clyde.update();
+    blinky && blinky.update();
 }
 
 function mousePressed() {
@@ -127,6 +152,8 @@ function mousePressed() {
     // Check if the coords are in the map
     if (x < 0 || x > WIDTH - SIZE || y < 0 || y > HEIGHT - SIZE) return;
     const isOverlapping = map.some((entity) => entity.pos.x === x && entity.pos.y === y) || lama.pos.x === x && lama.pos.y === y;
+    if (!isOverlapping){
+
     switch (currentSelection) {
         case 'border':
             insertedItem = new Border(createVector(x, y),  true);
@@ -138,17 +165,19 @@ function mousePressed() {
             insertedItem = new Power(x, y, true);
             break;
         case 'gertrud1':
+            clyde = new Clyde(x, y, true);
+            break;
         case 'gertrud2':
+            inky = new Pinky(x, y, true);
+            break;
         case 'gertrud3':
+            pinky = new Blinky(x, y, true);
+            break;
         case 'gertrud4':
-            if(!isOverlapping){
-                gertruds[currentSelection] =  new Gertrud(x, y,currentSelection[currentSelection.length-1],  true);
-            }
-                break;
+            blinky = new Inky(x, y, true);
+            break;
         case 'lama':
-            if(!isOverlapping){
                 lama = new Lama(createVector(x, y), SIZE, true);
-            }
             return;
         case 'delete':
             map = map.filter(
@@ -158,6 +187,8 @@ function mousePressed() {
         default:
             return;
     }
+    }
+
     if (!isOverlapping && insertedItem) {
         map.push(insertedItem);
     }
@@ -194,10 +225,14 @@ function loadMap(){
     let powerups = JSON.parse(`[${mapData.powerups}]`).map((powerup) => new Power(powerup.x, powerup.y, true));
     // let spawner = mapData.spawner;
     let lamaser = new Lama(createVector(mapData.lama.x, mapData.lama.y), SIZE, true);
-    console.log(barriers);
     map = [];
     map = [...barriers, ...cookies, ...powerups];
     lama = lamaser;
+    pinky = new Pinky(mapData.pinky.x, mapData.pinky.y, true);
+    inky = new Inky(mapData.inky.x, mapData.inky.y, true);
+    clyde = new Clyde(mapData.clyde.x, mapData.clyde.y, true);
+    blinky = new Blinky(mapData.blinky.x, mapData.blinky.y, true);
+    BLINKY_START_POS = createVector(mapData.blinky.x, mapData.blinky.y);
     setup();
 }
 
@@ -212,7 +247,6 @@ function saveMap(button){
     let barriers = [];
     let cookies = [];
     let powerups = [];
-    let spawner = null;
     let lamaser = {x: lama.pos.x, y: lama.pos.y};
     map.forEach((entity) => {
         if(entity instanceof Border){
@@ -228,7 +262,7 @@ function saveMap(button){
     }); 
     
     let mapData = {
-        barriers, cookies, powerups, spawner, lama: lamaser
+        barriers, cookies, powerups, lama: lamaser, pinky, inky, clyde, blinky
     }
     let mapDataString = JSON.stringify(mapData);
     document.getElementById("io").innerHTML = mapDataString;

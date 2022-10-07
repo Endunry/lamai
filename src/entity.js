@@ -4,7 +4,7 @@ class Entity{
     }
 
     onCollision(other){
-        // console.log("Collision", other)
+        // ("Collision", other)
     }
 
     isColliding(pos, size, dir){
