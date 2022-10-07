@@ -43,6 +43,11 @@ class Border extends Entity {
         this._inner_br = this.isSat([1, 2],[5])
         this._inner_bl = this.isSat([3, 2],[6])
         this._inner_tl = this.isSat([0, 3],[7])
+
+        this._horizontal = this.isSat([1], [0, 3, 2]) || this.isSat([3], [0, 1, 2])
+        this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3])
+
+        this._single = this.isSat([], [0, 1, 2, 3])
     }
 
     draw() {
@@ -50,7 +55,7 @@ class Border extends Entity {
         push();
 
         translate(this.pos);
-        // fill("gray");
+        // fill(32, 32, 32);
         // rect(0, 0, this._size, this._size);
         strokeWeight(4);
         stroke(64, 64, 255)
@@ -58,19 +63,20 @@ class Border extends Entity {
         let padding = this._padding
         let size = this._size
 
-        if (this._top) {
+        if (this._top || this._horizontal) {
             line(0, padding, size, padding)
         }
-        if (this._bottom) {
+        if (this._bottom || this._horizontal) {
             line(0, size - padding, size, size - padding)
         }
-        if (this._right) {
+        if (this._right || this._vertical) {
             line(size - padding, 0, size - padding, size)
         }
-        if (this._left) {
+        if (this._left || this._vertical) {
             line(padding, 0, padding, size)
         }
         
+
         noFill();
 
         if (this._outer_tr) {
@@ -86,6 +92,7 @@ class Border extends Entity {
             arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
         }
 
+
         if (this._inner_tr) {
             arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
         }
@@ -99,6 +106,9 @@ class Border extends Entity {
             arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
         }
 
+        if (this._single) {
+            arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, TWO_PI)
+        }
 
         // if (this._neighbors) {
         //     if (!this._neighbors[0]) { // top
