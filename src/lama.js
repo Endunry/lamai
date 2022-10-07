@@ -72,6 +72,7 @@ class Lama extends Entity{
 
 
     update(){
+        console.log(this.queuedir?.x, this.queuedir?.y);
         this.lastpos = this.pos;
         if(!this.checkForCollision(this.queuedir)){
             this.dir = this.queuedir;

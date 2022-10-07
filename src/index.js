@@ -1,12 +1,12 @@
 
 const SIZE = 30; // Size of a grid
-const GRID_WIDTH = 21;
-const GRID_HEIGHT = 27;
+const GRID_WIDTH = 28;
+const GRID_HEIGHT = 35;
 const WIDTH = GRID_WIDTH * SIZE;
 const HEIGHT = GRID_HEIGHT * SIZE;
 
 const BACKGROUND = 'black';
-const TIMESECONDS = 0.3;
+const TIMESECONDS = 0.2;
 
 let textx = 0;
 let texty = 0;
