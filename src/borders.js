@@ -103,31 +103,19 @@ class Border extends Entity {
             line(size - padding, 0, size - padding, size)
         }
 
-        if (this._outer_tr) {
-            arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * HALF_PI, 0);
-        }
-        if (this._outer_br) {
-            arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, HALF_PI);
-        }
-        if (this._outer_bl) {
-            arc(size, 0, (size - padding) * 2, (size - padding) * 2, HALF_PI, 2 * HALF_PI);
-        }
-        if (this._outer_tl) {
-            arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
-        }
-
-        if (this._inner_tr) {
-            arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
-        }
-        if (this._inner_br) {
-            arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
-        }
-        if (this._inner_bl) {
+        if (this._outer_tr || this._inner_bl) {
             arc(0, size, padding * 2, padding * 2, 3 * HALF_PI, 0);
         }
-        if (this._inner_tl) {
+        if (this._outer_br || this._inner_tl) {
             arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
         }
+        if (this._outer_bl || this._inner_tr) {
+            arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
+        }
+        if (this._outer_tl || this._inner_br) {
+            arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
+        }
+
 
         padding = this._size / 3
 
