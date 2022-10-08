@@ -9,6 +9,7 @@ class Void extends Entity {
     }
 
     draw() {
+        if (!DEBUG) return;
         push();
 
         translate(this.pos);
