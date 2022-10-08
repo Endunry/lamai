@@ -1,16 +1,17 @@
 
 class Lama extends Moveable{
 
-    constructor( atPosition, size, calculated=false) {
-        super(atPosition.x, atPosition.y, "./src/Lama.png", calculated);
+    constructor( atPosition, size) {
+        super(atPosition.x, atPosition.y, "./src/Lama.png");
+        console.log(atPosition);
         this.points = 0;
         this._size = size;
     }
 
     draw() {
-
+    
         push();
-        translate(this.pos.x + this._size/2, this.pos.y + this._size/2);
+        translate(this.pos.x * SIZE + this._size/2, this.pos.y * SIZE + this._size/2);
         noStroke();
         // flip the lama if he is moving left
         if(this.dir && (this.dir.x < 0 || this.flipped)){
@@ -29,6 +30,10 @@ class Lama extends Moveable{
         // p5.ellipse(0, 0, this._size);
 
         pop();
+        if (DEBUG) {
+            fill(255, 0, 0);
+            ellipse(this.pos.x*SIZE, this.pos.y*SIZE, this._size / 2, this._size / 2);
+        }
     }
 
     getKeys() {
@@ -43,7 +48,7 @@ class Lama extends Moveable{
 
     listenForKeys() {
         const keys = this.getKeys();
-        const power = this._size * LAMA_SPEED;
+        const power = LAMA_SPEED;
         if(keys.up){
             this.queuedir = createVector(0, -power);
         }
