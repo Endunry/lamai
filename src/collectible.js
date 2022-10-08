@@ -1,9 +1,6 @@
 class Collectible extends Entity{
-    constructor(x, y, width, height, color, calculated = false){
+    constructor(x, y, width, height, color){
         super(x,y);
-        if(!calculated){
-            this.pos.mult(SIZE)
-        }
         this.width = width;
         this.height = height;
         this.color = color;
@@ -11,7 +8,7 @@ class Collectible extends Entity{
 
     draw(){
         push();
-        translate(this.pos.x, this.pos.y);
+        translate(this.pos.x * SIZE, this.pos.y * SIZE);
         fill(this.color);
         ellipse(SIZE/2, SIZE/2 , this.width, this.height);
         pop();
@@ -20,7 +17,7 @@ class Collectible extends Entity{
     onCollision(other){
         if(other.constructor.name == "Lama"){
             other.points++;
-            map.splice(map.indexOf(this), 1);
+            arrayMap[this.pos.x][this.pos.y] = null;
         }
     }
 

@@ -1,10 +1,7 @@
 class Border extends Entity {
 
-    constructor(atPosition, calculated = false) {
+    constructor(atPosition) {
         super(atPosition.x, atPosition.y);
-        if (!calculated) {
-            this.pos = atPosition.mult(SIZE);
-        }
         this._size = SIZE;
     }
 
@@ -78,7 +75,7 @@ class Border extends Entity {
 
         push();
 
-        translate(this.pos);
+        translate(this.pos.x * SIZE, this.pos.y * SIZE);
         if (DEBUG) {
             noStroke();
             fill(64, 64, 255, 64);

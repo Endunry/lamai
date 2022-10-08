@@ -1,10 +1,7 @@
 class Void extends Entity {
 
-    constructor(atPosition, calculated = false) {
+    constructor(atPosition) {
         super(atPosition.x, atPosition.y);
-        if (!calculated) {
-            this.pos = atPosition.mult(SIZE);
-        }
         this._size = SIZE;
     }
 
@@ -12,7 +9,7 @@ class Void extends Entity {
         if (!DEBUG) return;
         push();
 
-        translate(this.pos);
+        translate(this.pos.x*SIZE, this.pos.y*SIZE);
         noStroke();
         fill(255, 0, 0, 64);
         rect(0, 0, this._size, this._size);
