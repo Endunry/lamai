@@ -41,6 +41,7 @@ window.addEventListener("keydown", function (e) {
 window.onload = function () {
     let mapDataString = mapdatainit;
     let mapData = mapDataString;
+    let voids = JSON.parse(`[${mapData.voids}]`).map((_void) => new Void(createVector(_void.x, _void.y), true));
     let barriers = JSON.parse(`[${mapData.barriers}]`).map((barrier) => new Border(createVector(barrier.x, barrier.y), true));
     let cookies = JSON.parse(`[${mapData.cookies}]`).map((cookie) => new Cookie(cookie.x, cookie.y, true));
     let powerups = JSON.parse(`[${mapData.powerups}]`).map((powerup) => new Power(powerup.x, powerup.y, true));
@@ -52,7 +53,7 @@ window.onload = function () {
     blinky = new Blinky(mapData.blinky.x, mapData.blinky.y, true);
     BLINKY_START_POS = blinky.pos.copy();
     map = [];
-    map = [...barriers, ...cookies, ...powerups];
+    map = [...voids, ...barriers, ...cookies, ...powerups];
     lama = lamaser;
     setup();
 }
@@ -99,15 +100,22 @@ function draw() {
 
 }
 
+function getBorder(borders, x, y) {
+    if (borders[x] && borders[x][y] !== undefined) {
+        return borders[x][y] instanceof Border ? 1 : borders[x][y]
+    }
+    return -1
+}
+
 function getBorderNeighbors(borders, x, y) {
-    let top = borders[x] ? borders[x][y - 1] : undefined
-    let right = borders[x + 1] ? borders[x + 1][y] : undefined
-    let bottom = borders[x] ? borders[x][y + 1] : undefined
-    let left = borders[x - 1] ? borders[x - 1][y] : undefined
-    let top_right = borders[x + 1] ? borders[x + 1][y - 1] : undefined
-    let bottom_right = borders[x + 1] ? borders[x + 1][y + 1] : undefined
-    let bottom_left = borders[x - 1] ? borders[x - 1][y + 1] : undefined
-    let top_left = borders[x - 1] ? borders[x - 1][y - 1] : undefined
+    let top = getBorder(borders, x, y - 1)
+    let right = getBorder(borders, x + 1, y)
+    let bottom = getBorder(borders, x, y + 1)
+    let left = getBorder(borders, x - 1, y)
+    let top_right = getBorder(borders, x + 1, y - 1)
+    let bottom_right = getBorder(borders, x + 1, y + 1)
+    let bottom_left = getBorder(borders, x - 1, y + 1)
+    let top_left = getBorder(borders, x - 1, y - 1)
     return [top, right, bottom, left, top_right, bottom_right, bottom_left, top_left]
 }
 
@@ -116,19 +124,21 @@ function determineBorderTypes() {
     for (let x = 0; x < GRID_WIDTH; x++) {
         borders.push([])
         for (let y = 0; y < GRID_HEIGHT; y++) {
-            borders[x][y] = undefined
+            borders[x][y] = 0
         }
     }
     for (entity of map) {
-        if (entity instanceof Border) {
-            let x = entity.pos.x / SIZE
-            let y = entity.pos.y / SIZE
+        let x = entity.pos.x / SIZE
+        let y = entity.pos.y / SIZE
+        if (entity instanceof Void) {
+            borders[x][y] = -1
+        } else if (entity instanceof Border) {
             borders[x][y] = entity
         }
     }
     for (let x = 0; x < GRID_WIDTH; x++) {
         for (let y = 0; y < GRID_HEIGHT; y++) {
-            if (borders[x][y]) {
+            if (borders[x][y] instanceof Border) {
                 let neighbors = getBorderNeighbors(borders, x, y)
                 borders[x][y].setNeighbors(neighbors)
             }
@@ -152,9 +162,12 @@ function mousePressed() {
     // Check if the coords are in the map
     if (x < 0 || x > WIDTH - SIZE || y < 0 || y > HEIGHT - SIZE) return;
     const isOverlapping = map.some((entity) => entity.pos.x === x && entity.pos.y === y) || lama.pos.x === x && lama.pos.y === y;
-    if (!isOverlapping){
+    // if (!isOverlapping){
 
     switch (currentSelection) {
+        case 'void':
+            insertedItem = new Void(createVector(x, y),  true);
+            break;
         case 'border':
             insertedItem = new Border(createVector(x, y),  true);
             break;
@@ -187,7 +200,7 @@ function mousePressed() {
         default:
             return;
     }
-    }
+    // }
 
     if (!isOverlapping && insertedItem) {
         map.push(insertedItem);
@@ -220,13 +233,14 @@ function loadMap(){
         return;
     }
     let mapData = JSON.parse(mapDataString);
+    let voids = JSON.parse(`[${mapData.voids}]`).map((_void) => new Void(createVector(_void.x, _void.y), true));
     let barriers = JSON.parse(`[${mapData.barriers}]`).map((barrier) => new Border(createVector(barrier.x, barrier.y), true));
     let cookies = JSON.parse(`[${mapData.cookies}]`).map((cookie) => new Cookie(cookie.x, cookie.y, true));
     let powerups = JSON.parse(`[${mapData.powerups}]`).map((powerup) => new Power(powerup.x, powerup.y, true));
     // let spawner = mapData.spawner;
     let lamaser = new Lama(createVector(mapData.lama.x, mapData.lama.y), SIZE, true);
     map = [];
-    map = [...barriers, ...cookies, ...powerups];
+    map = [...voids, ...barriers, ...cookies, ...powerups];
     lama = lamaser;
     pinky = new Pinky(mapData.pinky.x, mapData.pinky.y, true);
     inky = new Inky(mapData.inky.x, mapData.inky.y, true);
@@ -244,12 +258,15 @@ function saveMap(button){
     let emptyNode = document.createElement('span');
     emptyNode.id = 'currentSelection';
     document.getElementById('currentSelection').replaceWith(emptyNode);
+    let voids = [];
     let barriers = [];
     let cookies = [];
     let powerups = [];
     let lamaser = {x: lama.pos.x, y: lama.pos.y};
     map.forEach((entity) => {
-        if(entity instanceof Border){
+        if(entity instanceof Void){
+            voids.push(JSON.stringify(entity));
+        }else if(entity instanceof Border){
             barriers.push(JSON.stringify(entity));
         }else if(entity instanceof Cookie){
             cookies.push(JSON.stringify(entity));
@@ -262,7 +279,7 @@ function saveMap(button){
     }); 
     
     let mapData = {
-        barriers, cookies, powerups, lama: lamaser, pinky, inky, clyde, blinky
+        voids, barriers, cookies, powerups, lama: lamaser, pinky, inky, clyde, blinky
     }
     let mapDataString = JSON.stringify(mapData);
     document.getElementById("io").innerHTML = mapDataString;

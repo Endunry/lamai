@@ -6,18 +6,31 @@ class Border extends Entity {
             this.pos = atPosition.mult(SIZE);
         }
         this._size = SIZE;
-        this._padding = SIZE / 3
     }
 
-    isSat(border, no_border) {
+    isSat(border, no_border, _void) {
         for (let i of border) {
-            if (!this._neighbors[i]) {
+            if (this._neighbors[i] != 1) {
                 return false
             }
         }
-        for (let i of  no_border) {
-            if (this._neighbors[i]) {
-                return false
+        if (_void == undefined) {
+            for (let i of  no_border) {
+                if (this._neighbors[i] == 1) {
+                    return false
+                }
+            }
+        } else if (_void) {
+            for (let i of  no_border) {
+                if (this._neighbors[i] != -1) {
+                    return false
+                }
+            }
+        } else {
+            for (let i of  no_border) {
+                if (this._neighbors[i] != 0) {
+                    return false
+                }
             }
         }
         return true
@@ -29,25 +42,44 @@ class Border extends Entity {
     setNeighbors(neighbors) {
         this._neighbors = neighbors
 
-        this._top = this.isSat([3, 1], [0])
-        this._bottom = this.isSat([3, 1], [2])
-        this._right = this.isSat([0, 2], [1])
-        this._left = this.isSat([0, 2], [3])
+        this._top = this.isSat([3, 1], [0], false)
+        this._bottom = this.isSat([3, 1], [2], false)
+        this._right = this.isSat([0, 2], [1], false)
+        this._left = this.isSat([0, 2], [3], false)
 
-        this._outer_tr = this.isSat([2, 3],[0, 1])
-        this._outer_br = this.isSat([0, 3],[1, 2])
-        this._outer_bl = this.isSat([0, 1],[2, 3])
-        this._outer_tl = this.isSat([1, 2],[3, 0])
+        this._outer_tr = this.isSat([2, 3],[0, 1], false)
+        this._outer_br = this.isSat([0, 3],[1, 2], false)
+        this._outer_bl = this.isSat([0, 1],[2, 3], false)
+        this._outer_tl = this.isSat([1, 2],[3, 0], false)
 
-        this._inner_tr = this.isSat([0, 1],[4])
-        this._inner_br = this.isSat([1, 2],[5])
-        this._inner_bl = this.isSat([3, 2],[6])
-        this._inner_tl = this.isSat([0, 3],[7])
+        this._inner_tr = this.isSat([0, 1],[4], false)
+        this._inner_br = this.isSat([1, 2],[5], false)
+        this._inner_bl = this.isSat([3, 2],[6], false)
+        this._inner_tl = this.isSat([0, 3],[7], false)
 
         this._horizontal = this.isSat([1], [0, 3, 2]) || this.isSat([3], [0, 1, 2])
+        this._horizontal_top = this._horizontal && this.isSat([], [0], true)
+        this._horizontal_bottom = this._horizontal && this.isSat([], [2], true)
         this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3])
+        this._vertical_right = this._vertical && this.isSat([], [1], true)
+        this._vertical_left = this._vertical && this.isSat([], [3], true)
 
-        this._single = this.isSat([], [0, 1, 2, 3])
+        this._single = this.isSat([], [0, 1, 2, 3], false)
+
+        this._void_top = this.isSat([3, 1], [0], true)
+        this._void_bottom = this.isSat([3, 1], [2], true)
+        this._void_right = this.isSat([0, 2], [1], true)
+        this._void_left = this.isSat([0, 2], [3], true)
+
+        this._void_outer_tr = this.isSat([2, 3],[0, 1], true)
+        this._void_outer_br = this.isSat([0, 3],[1, 2], true)
+        this._void_outer_bl = this.isSat([0, 1],[2, 3], true)
+        this._void_outer_tl = this.isSat([1, 2],[3, 0], true)
+
+        this._void_inner_tr = this.isSat([0, 1],[4], true)
+        this._void_inner_br = this.isSat([1, 2],[5], true)
+        this._void_inner_bl = this.isSat([3, 2],[6], true)
+        this._void_inner_tl = this.isSat([0, 3],[7], true)
     }
 
     draw() {
@@ -57,27 +89,19 @@ class Border extends Entity {
         translate(this.pos);
         // fill(32, 32, 32);
         // rect(0, 0, this._size, this._size);
+        noFill();
         strokeWeight(4);
         stroke(64, 64, 255)
 
-        let padding = this._padding
         let size = this._size
+        let padding = this._size / 2
 
-        if (this._top || this._horizontal) {
+        if (this._top || this._bottom || this._horizontal) {
             line(0, padding, size, padding)
         }
-        if (this._bottom || this._horizontal) {
-            line(0, size - padding, size, size - padding)
-        }
-        if (this._right || this._vertical) {
+        if (this._left || this._right || this._vertical) {
             line(size - padding, 0, size - padding, size)
         }
-        if (this._left || this._vertical) {
-            line(padding, 0, padding, size)
-        }
-        
-
-        noFill();
 
         if (this._outer_tr) {
             arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * HALF_PI, 0);
@@ -92,7 +116,6 @@ class Border extends Entity {
             arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
         }
 
-
         if (this._inner_tr) {
             arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
         }
@@ -106,24 +129,53 @@ class Border extends Entity {
             arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
         }
 
+        padding = this._size / 3
+
         if (this._single) {
             arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, TWO_PI)
         }
 
-        // if (this._neighbors) {
-        //     if (!this._neighbors[0]) { // top
-        //         line(this._padding, this._padding, this._size - this._padding, this._padding)
-        //     }
-        //     if (!this._neighbors[1]) { // right
-        //         line(this._size - this._padding, this._padding, this._size - this._padding, this._size - this._padding)
-        //     }
-        //     if (!this._neighbors[2]) { // bottom
-        //         line(this._padding, this._size - this._padding, this._size - this._padding, this._size - this._padding)
-        //     }
-        //     if (!this._neighbors[3]) { // left
-        //         line(this._padding, this._padding, this._padding, this._size - this._padding)
-        //     }
-        // }
+
+        padding = 2
+
+        if (this._void_top || this._horizontal_top) {
+            line(0, padding, size, padding)
+        }
+        if (this._void_bottom || this._horizontal_bottom) {
+            line(0, size - padding, size, size - padding)
+        }
+        if (this._void_right || this._vertical_right) {
+            line(size - padding, 0, size - padding, size)
+        }
+        if (this._void_left || this._vertical_left) {
+            line(padding, 0, padding, size)
+        }
+
+        if (this._void_outer_tr) {
+            arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * HALF_PI, 0);
+        }
+        if (this._void_outer_br) {
+            arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, HALF_PI);
+        }
+        if (this._void_outer_bl) {
+            arc(size, 0, (size - padding) * 2, (size - padding) * 2, HALF_PI, 2 * HALF_PI);
+        }
+        if (this._void_outer_tl) {
+            arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
+        }
+
+        if (this._void_inner_tr) {
+            arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
+        }
+        if (this._void_inner_br) {
+            arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
+        }
+        if (this._void_inner_bl) {
+            arc(0, size, padding * 2, padding * 2, 3 * HALF_PI, 0);
+        }
+        if (this._void_inner_tl) {
+            arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
+        }
 
         pop();
     }

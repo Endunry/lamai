@@ -84,7 +84,7 @@ class Gertrud extends Moveable{
             }
         }
 
-        image(this.img, 0, 0, this._size, this._size);
+        image(this.img, 0, 0, this._size * 1.9, this._size * 1.9);
         // include img
         // p5.ellipse(0, 0, this._size);
         
