@@ -22,6 +22,8 @@ let lama;
 let currentSelection = null;
 let map = [];
 
+let arrayMap = new Array(GRID_HEIGHT).fill(0).map(() => new Array(GRID_WIDTH));
+
 let started = false;
 
 let timeInterval;
@@ -77,7 +79,6 @@ function setup() {
 function draw() {
     background(BACKGROUND);
     if(DEBUG){
-
         stroke(255);
         strokeWeight(1);
         for (let i = 0; i < GRID_WIDTH; i++) {
@@ -86,6 +87,9 @@ function draw() {
         for (let i = 0; i < GRID_HEIGHT; i++) {
             line(0, i * SIZE, WIDTH, i * SIZE);
         }
+        // Draw fps
+        fill(255);
+        text(`FPS: ${frameRate().toFixed(0)}`, 100, 10);
     }
 
     lama && lama.draw();
@@ -96,8 +100,6 @@ function draw() {
     pinky && pinky.draw();
     clyde && clyde.draw();
     blinky && blinky.draw();
-
-
 }
 
 function getBorder(borders, x, y) {
