@@ -3,9 +3,15 @@ class Lama extends Moveable{
 
     constructor( atPosition, size) {
         super(atPosition.x, atPosition.y, "./src/Lama.png");
-        console.log(atPosition);
+        (atPosition);
         this.points = 0;
         this._size = size;
+    }
+
+    die(){
+        clearInterval(timeInterval);
+        initGame();
+        alert("You died!");
     }
 
     draw() {
@@ -13,6 +19,14 @@ class Lama extends Moveable{
         push();
         translate(this.pos.x * SIZE + this._size/2, this.pos.y * SIZE + this._size/2);
         noStroke();
+        if(DEBUG){
+            noFill();
+            stroke("orange");
+            strokeWeight(3);
+            ellipse(0, 0, SIZE*8*2, SIZE*8*2);
+            
+        }
+        strokeWeight(1);
         // flip the lama if he is moving left
         if(this.dir && (this.dir.x < 0 || this.flipped)){
             if(this.dir.x > 0){
@@ -33,7 +47,13 @@ class Lama extends Moveable{
         if (DEBUG) {
             fill(255, 0, 0);
             ellipse(this.pos.x*SIZE, this.pos.y*SIZE, this._size / 2, this._size / 2);
+            fill(255, 255, 0);
+            ellipse(this.logicalPosition.x*SIZE, this.logicalPosition.y*SIZE, this._size / 2, this._size / 2);
         }
+    }
+
+    powerUp(){
+        return;
     }
 
     getKeys() {
@@ -48,7 +68,7 @@ class Lama extends Moveable{
 
     listenForKeys() {
         const keys = this.getKeys();
-        const power = LAMA_SPEED;
+        const power = 1;
         if(keys.up){
             this.queuedir = createVector(0, -power);
         }
@@ -66,6 +86,8 @@ class Lama extends Moveable{
         // }
 
     }
+
+   
 
 
     // update(){

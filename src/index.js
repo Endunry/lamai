@@ -4,12 +4,32 @@ const GRID_HEIGHT = 35;
 const WIDTH = GRID_WIDTH * SIZE;
 const HEIGHT = GRID_HEIGHT * SIZE;
 
-const DEBUG = true;
+const DEBUG = false;
 let HOME_TARGET = null;
 const BACKGROUND = 'black';
-const LAMA_SPEED = 1; // "How many grids will it move per cycle"
-const TIMESECONDS = 0.1; // "In which frequency will the timeLoop function be called" (1000*TIMESECONDS)
-const GERTRUD_SPEED = LAMA_SPEED;
+// "How many grids will it move per cycle"
+
+// Somehow let the movement be 11 Blocks per second for the normal gameplay
+
+/* Table for Speed values of pacman and the ghosts
+
+Pacman:
+    Norm: 80%
+    Fright: 90%
+Ghosts:
+    Norm: 75%
+    Fright: 50%
+    
+
+*/
+
+const TIMESECONDS = 50; // "In which frequency will the timeLoop function be called" (1000 / TIMESECONDS)
+const LAMA_SPEED = 10 // How many grids / second
+const GERTRUD_SPEED = 8;
+
+const LAMA_SMOOTHNESS = new Fraction(1, TIMESECONDS/LAMA_SPEED);
+console.log(LAMA_SMOOTHNESS)
+const GERTRUD_SMOOTHNESS = new Fraction(1, TIMESECONDS/GERTRUD_SPEED);
 let textx = 0;
 let texty = 0;
 
@@ -21,7 +41,7 @@ let START_TIME;
 
 let currentSelection = null;
 let arrayMap = new Array(GRID_WIDTH).fill(0).map(() => new Array(GRID_HEIGHT));
-console.log(arrayMap)
+(arrayMap)
 let started = false;
 
 let timeInterval;
@@ -39,7 +59,8 @@ window.addEventListener("keydown", function (e) {
     }
 }, false);
 
-window.onload = function () {
+function initGame(){
+    started = false;
     let mapDataString = mapdatainit;
     let mapData = mapDataString;
 
@@ -61,19 +82,23 @@ window.onload = function () {
     setup();
 }
 
+window.onload = function () {
+    initGame();   
+}
+
 function setup() {
     determineBorderTypes()
     const canvas = createCanvas(WIDTH, HEIGHT);
     canvas.parent('app');
     imageMode(CENTER);
-    console.log(arrayMap);
+    (arrayMap);
     textx = 0;
     texty = 0;
     textSize(20);
     textAlign(CENTER, CENTER);
     background(BACKGROUND);
     timeInterval && clearInterval(timeInterval);
-    timeInterval = setInterval(timeLoop, TIMESECONDS * 1000);
+    timeInterval = setInterval(timeLoop,1000 / TIMESECONDS);
     // lama = new Lama(createVector(1, 1), SIZE);
 }
 
@@ -156,7 +181,7 @@ function checkTimeTable(ghosts) {
     let time = new Date();
     let timeDiff = time - START_TIME;
     let seconds = Math.floor(timeDiff / 1000);
-    console.log(seconds);
+    (seconds);
     if (seconds >= 84) {
         ghosts.forEach(ghost => ghost.chase());
         return;

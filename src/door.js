@@ -2,7 +2,7 @@ class Door extends Entity{
     constructor(x,y){
         super(x,y);
         this._size = SIZE;
-        console.log(x,y)
+        (x,y)
     }
 
     getLegalDirection(){

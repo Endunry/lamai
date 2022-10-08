@@ -14,19 +14,14 @@ class Collectible extends Entity{
         pop();
     }
 
-    onCollision(other){
-        if(other.constructor.name == "Lama"){
-            other.points++;
-            arrayMap[this.pos.x][this.pos.y] = null;
-        }
-    }
+
 
     isColliding(pos, size, dir) {
         const actualPosition = createVector(this.pos.x + SIZE/2, this.pos.y + SIZE/2);
         const actualOtherPosition = createVector(pos.x + SIZE/2, pos.y + SIZE/2);
         const radius = this.width/2;
         const distance = actualPosition.dist(actualOtherPosition);
-        return distance < radius+SIZE/2+LAMA_SPEED;
+        return distance < radius+SIZE/2+LAMA_SMOOTHNESS.toFloat();
     }
 }
 
@@ -44,10 +39,29 @@ class Cookie extends Collectible{
     constructor(x, y, calculated = false){
         super(x, y,10, 10, "orange", calculated);
     }
+
+        onCollision(other) {
+            if (other.constructor.name == "Lama") {
+                other.points++;
+                arrayMap[this.pos.x][this.pos.y] = null;
+            }
+        }
 }
 
 class Power extends Collectible{
     constructor(x, y, calculated = false){
         super(x, y, 20,20 ,"purple", calculated);
     }
+
+        onCollision(other) {
+            if (other.constructor.name == "Lama") {
+                other.points+= 50;
+                arrayMap[this.pos.x][this.pos.y] = null;
+                lama.powerUp();
+                pinky && pinky.flee()
+                inky && inky.flee()
+                clyde && clyde.flee()
+                blinky && blinky.flee()
+            }
+        }
 }
