@@ -133,7 +133,7 @@ class Gertrud extends Moveable{
 class Pinky extends Gertrud{
     constructor(x, y, calculated = false){
         super(x, y, "2", calculated);
-        this.scatterTarget = createVector(3, -1)
+        this.scatterTarget = createVector(3, 0)
         this.scatterTarget.mult(SIZE);
         this.targetColor = color("pink");
     }
@@ -142,7 +142,7 @@ class Blinky extends Gertrud{
     constructor(x, y, calculated = false){
         super(x, y, "3", calculated);
         (x,y);
-        this.scatterTarget = createVector(GRID-WIDTH - 2, -1);
+        this.scatterTarget = createVector(GRID_WIDTH - 2, 0);
         this.scatterTarget.mult(SIZE);
         this.targetColor = color("red");
         this.firstState = "scatter"
