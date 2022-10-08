@@ -56,7 +56,7 @@ class Border extends Entity {
         this._vertical_left = this._vertical && this.isSat([], [3], true)
         if (this._vertical_right && this._vertical_left) this._vertical = false
 
-        this._single = this.isSat([], [0, 1, 2, 3], false)
+        this._single = this.isSat([], [0, 1, 2, 3])
 
         this._void_top = this.isSat([3, 1], [0], true)
         this._void_bottom = this.isSat([3, 1], [2], true)
