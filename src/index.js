@@ -102,45 +102,45 @@ function draw() {
 
 function getBorder(borders, x, y) {
     if (borders[x] && borders[x][y] !== undefined) {
-        return borders[x][y] instanceof Border ? 1 : borders[x][y]
+        return borders[x][y] instanceof Border ? 1 : borders[x][y];
     }
-    return -1
+    return -1;
 }
 
 function getBorderNeighbors(borders, x, y) {
-    let top = getBorder(borders, x, y - 1)
-    let right = getBorder(borders, x + 1, y)
-    let bottom = getBorder(borders, x, y + 1)
-    let left = getBorder(borders, x - 1, y)
-    let top_right = getBorder(borders, x + 1, y - 1)
-    let bottom_right = getBorder(borders, x + 1, y + 1)
-    let bottom_left = getBorder(borders, x - 1, y + 1)
-    let top_left = getBorder(borders, x - 1, y - 1)
-    return [top, right, bottom, left, top_right, bottom_right, bottom_left, top_left]
+    let top = getBorder(borders, x, y - 1);
+    let right = getBorder(borders, x + 1, y);
+    let bottom = getBorder(borders, x, y + 1);
+    let left = getBorder(borders, x - 1, y);
+    let top_right = getBorder(borders, x + 1, y - 1);
+    let bottom_right = getBorder(borders, x + 1, y + 1);
+    let bottom_left = getBorder(borders, x - 1, y + 1);
+    let top_left = getBorder(borders, x - 1, y - 1);
+    return [top, right, bottom, left, top_right, bottom_right, bottom_left, top_left];
 }
 
 function determineBorderTypes() {
-    let borders = []
+    let borders = [];
     for (let x = 0; x < GRID_WIDTH; x++) {
-        borders.push([])
+        borders.push([]);
         for (let y = 0; y < GRID_HEIGHT; y++) {
-            borders[x][y] = 0
+            borders[x][y] = 0;
         }
     }
     for (entity of map) {
-        let x = entity.pos.x / SIZE
-        let y = entity.pos.y / SIZE
+        let x = entity.pos.x / SIZE;
+        let y = entity.pos.y / SIZE;
         if (entity instanceof Void) {
-            borders[x][y] = -1
+            borders[x][y] = -1;
         } else if (entity instanceof Border) {
-            borders[x][y] = entity
+            borders[x][y] = entity;
         }
     }
     for (let x = 0; x < GRID_WIDTH; x++) {
         for (let y = 0; y < GRID_HEIGHT; y++) {
             if (borders[x][y] instanceof Border) {
-                let neighbors = getBorderNeighbors(borders, x, y)
-                borders[x][y].setNeighbors(neighbors)
+                let neighbors = getBorderNeighbors(borders, x, y);
+                borders[x][y].setNeighbors(neighbors);
             }
         }
     }
@@ -205,7 +205,7 @@ function mousePressed() {
     if (!isOverlapping && insertedItem) {
         map.push(insertedItem);
     }
-    determineBorderTypes()
+    determineBorderTypes();
 }
 
 function mouseDragged(event) {

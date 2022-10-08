@@ -13,10 +13,10 @@ class Void extends Entity {
         push();
 
         translate(this.pos);
-        noStroke()
+        noStroke();
         fill(255, 0, 0, 64);
         rect(0, 0, this._size, this._size);
 
-        pop()
+        pop();
     }
 }
