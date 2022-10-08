@@ -60,9 +60,11 @@ class Border extends Entity {
         this._horizontal = this.isSat([1], [0, 3, 2]) || this.isSat([3], [0, 1, 2])
         this._horizontal_top = this._horizontal && this.isSat([], [0], true)
         this._horizontal_bottom = this._horizontal && this.isSat([], [2], true)
+        if (this._horizontal_top && this._horizontal_bottom) this._horizontal = false
         this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3])
         this._vertical_right = this._vertical && this.isSat([], [1], true)
         this._vertical_left = this._vertical && this.isSat([], [3], true)
+        if (this._vertical_right && this._vertical_left) this._vertical = false
 
         this._single = this.isSat([], [0, 1, 2, 3], false)
 
@@ -87,8 +89,11 @@ class Border extends Entity {
         push();
 
         translate(this.pos);
-        // fill(32, 32, 32);
-        // rect(0, 0, this._size, this._size);
+        if (DEBUG) {
+            noStroke()
+            fill(64, 64, 255, 64);
+            rect(0, 0, this._size, this._size);
+        }
         noFill();
         strokeWeight(4);
         stroke(64, 64, 255)
