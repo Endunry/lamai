@@ -55,8 +55,11 @@ class Border extends Entity {
             this._inner_bl = this.isSat([3, 2],[6])
             this._inner_tl = this.isSat([0, 3],[7])
 
-            this._horizontal = this.isSat([1], [0, 3, 2]) || this.isSat([3], [0, 1, 2])
-            this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3])
+            this._horizontal_left = this.isSat([3], [0, 1, 2]) || (this.isSat([1], [0, 2]) && this.isSat([], [3], true));
+            this._horizontal_right = this.isSat([1], [0, 3, 2]) || (this.isSat([3], [0, 2]) && this.isSat([], [1], true));
+
+            this._vertical_top = this.isSat([0], [1, 2, 3]) || (this.isSat([2], [1, 3]) && this.isSat([], [0], true));
+            this._vertical_bottom = this.isSat([2], [1, 0, 3]) || (this.isSat([0], [1, 3]) && this.isSat([], [2], true));
 
             this._single = this.isSat([], [0, 1, 2, 3])
         } else if (BORDER_DRAWING == 'ORIGINAL') {
@@ -117,19 +120,47 @@ class Border extends Entity {
         if (BORDER_DRAWING == 'SIMPLE') {
             let padding = size / 3;
 
-            if (this._top || this._horizontal) {
+            if (this._top) {
                 line(0, padding, size, padding);
             }
-            if (this._bottom || this._horizontal) {
+            if (this._bottom) {
                 line(0, size - padding, size, size - padding);
             }
-            if (this._right || this._vertical) {
+            if (this._right) {
                 line(size - padding, 0, size - padding, size);
             }
-            if (this._left || this._vertical) {
+            if (this._left) {
                 line(padding, 0, padding, size);
             }
-            
+
+            if (this._horizontal_left) {
+                line(0, padding, size / 2, padding);
+                line(0, size - padding, size / 2, size - padding);
+                if (!this._horizontal_right) {
+                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 3 * HALF_PI, HALF_PI)
+                }
+            }
+            if (this._horizontal_right) {
+                line(size / 2, padding, size, padding);
+                line(size / 2, size - padding, size, size - padding);
+                if (!this._horizontal_left) {
+                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, HALF_PI, 3 * HALF_PI)
+                }
+            }
+            if (this._vertical_top) {
+                line(size - padding, 0, size - padding, size / 2);
+                line(padding, 0, padding, size / 2);
+                if (!this._vertical_bottom) {
+                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, 2 * HALF_PI)
+                }
+            }
+            if (this._vertical_bottom) {
+                line(size - padding, size / 2, size - padding, size);
+                line(padding, size / 2, padding, size);
+                if (!this._vertical_top) {
+                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 2 * HALF_PI, 0)
+                }
+            }
 
             noFill();
 
