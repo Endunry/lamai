@@ -4,7 +4,8 @@ const GRID_HEIGHT = 35;
 const WIDTH = GRID_WIDTH * SIZE;
 const HEIGHT = GRID_HEIGHT * SIZE;
 
-const DEBUG = false;
+const BORDER_DRAWING = 'ORIGINAL';  // SIMPLE or ORIGINAL 
+const DEBUG = true;
 let HOME_TARGET = null;
 const BACKGROUND = 'black';
 // "How many grids will it move per cycle"
@@ -133,7 +134,7 @@ function getBorder(borders, x, y) {
     if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
         if (borders[x][y] instanceof Border) {
             return 1;
-        } else if (borders[x][y] instanceof Void) {
+        } else if (borders[x][y] instanceof Void || borders[x][y] instanceof Door) {
             return -1;
         }
         return 0;
