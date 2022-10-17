@@ -48,10 +48,15 @@ class Border extends Entity {
         this._horizontal_top = this._horizontal && this.isSat([], [0], true);
         this._horizontal_bottom = this._horizontal && this.isSat([], [2], true);
         if (this._horizontal_top && this._horizontal_bottom) this._horizontal = false;
+        this._horizontal_left = this._horizontal && (this.isSat([3], []) || this.isSat([], [3], true));
+        this._horizontal_right = this._horizontal && (this.isSat([1], []) || this.isSat([], [1], true));
+
         this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3]) || this.isSat([0, 2], [1], false) || this.isSat([0, 2], [3], false);
         this._vertical_right = this._vertical && this.isSat([], [1], true);
         this._vertical_left = this._vertical && this.isSat([], [3], true);
         if (this._vertical_right && this._vertical_left) this._vertical = false;
+        this._vertical_top = this._vertical && (this.isSat([0], []) || this.isSat([], [0], true));
+        this._vertical_bottom = this._vertical && (this.isSat([2], []) || this.isSat([], [2], true));
 
         this._single = this.isSat([], [0, 1, 2, 3]);
 
@@ -88,11 +93,17 @@ class Border extends Entity {
         let size = this._size;
         let padding = this._size / 2;
 
-        if (this._horizontal) {
-            line(0, padding, size, padding);
+        if (this._horizontal_left) {
+            line(0, padding, size / 2, padding);
         }
-        if (this._vertical) {
-            line(size - padding, 0, size - padding, size);
+        if (this._horizontal_right) {
+            line(size / 2, padding, size, padding);
+        }
+        if (this._vertical_top) {
+            line(size - padding, 0, size - padding, size / 2);
+        }
+        if (this._vertical_bottom) {
+            line(size - padding, size / 2, size - padding, size);
         }
 
         if (this._tr) {
