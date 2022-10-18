@@ -10,10 +10,10 @@ let FLEESTART;
 class Gertrud extends Moveable {
 
     constructor(x, y, type) {
-        super(x, y, `./src/Gertrud${type}.png`);
+        super(x, y, `./src/assets/Gertrud${type}.png`);
         this._size = SIZE;
-        this.fleeImg = loadImage(`./src/Gertrud5.png`);
-        this.eatenImg = loadImage(`./src/Gertrud6.png`);
+        this.fleeImg = loadImage(`./src/assets/Gertrud5.png`);
+        this.eatenImg = loadImage(`./src/assets/Gertrud6.png`);
         this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
         this.target = null; // the target tile (determined by the state and type of ghost)
         this.collided = true;

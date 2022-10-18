@@ -65,7 +65,7 @@ body > canvas:focus{
 #allGerturds > *{
     width:40px;
     height:40px;
-    background: url(./src/Gertrud.png);
+    background: url(./src/assets/Gertrud.png);
     background-size: cover;
     background-position: center;
     cursor: pointer;
@@ -87,7 +87,7 @@ body > canvas:focus{
 .lama{
     width:50px;
     height:50px;
-    background:url('./src/Lama.png');
+    background:url('./src/assets/Lama.png');
     background-size: contain;
 }
 
@@ -102,7 +102,7 @@ body > canvas:focus{
 .delete{
     width:50px;
     height:50px;
-    background:url('./src/delete.png');
+    background:url('./src/assets/delete.png');
     background-size: contain;
 }
 

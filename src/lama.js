@@ -2,7 +2,7 @@
 class Lama extends Moveable{
 
     constructor( atPosition, size) {
-        super(atPosition.x, atPosition.y, "./src/Lama.png");
+        super(atPosition.x, atPosition.y, "./src/assets/Lama.png");
         (atPosition);
         this.points = 0;
         this._size = size;
