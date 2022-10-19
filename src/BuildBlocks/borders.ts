@@ -194,6 +194,7 @@ class Border extends Entity implements BorderInterface {
             this._void_inner_tl = this.isSat([0, 3],[7], true);
         }
     }
+    
 
     draw(p5: P5) {
 

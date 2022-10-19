@@ -1,5 +1,6 @@
 import P5, { Color, Vector } from "p5";
-import { LAMA_SMOOTHNESS, gameMap, lama, pinky, inky, clyde, blinky } from "..";
+import { LAMA_SMOOTHNESS } from "..";
+import game from "../Game";
 import { config } from "../utils/singletons";
 import Entity, { EntityInterface } from "./entity";
 import Lama, { LamaInterface } from "./lama";
@@ -58,7 +59,7 @@ export class Cookie extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points++;
-                gameMap[this.pos.x][this.pos.y] = null;
+                game.map[this.pos.x][this.pos.y] = null;
             }
         }
 }
@@ -71,12 +72,12 @@ export class Power extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points+= 50;
-                gameMap[this.pos.x][this.pos.y] = null;
-                lama.powerUp();
-                pinky && pinky.flee()
-                inky && inky.flee()
-                clyde && clyde.flee()
-                blinky && blinky.flee()
+                game.map[this.pos.x][this.pos.y] = null;
+                game.lama.powerUp();
+                game.pinky && game.pinky.flee()
+                game.inky && game.inky.flee()
+                game.clyde && game.clyde.flee()
+                game.blinky && game.blinky.flee()
             }
         }
 }

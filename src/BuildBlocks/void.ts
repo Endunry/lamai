@@ -15,6 +15,10 @@ class Void extends Entity implements VoidInterface {
 
     }
 
+    drawDebug(p5: P5): void {
+        
+    }
+
     draw(p5: P5) {
         if (!globals.debug) return;
         p5.push();

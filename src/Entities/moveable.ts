@@ -1,9 +1,10 @@
 import p5, { Image, Vector } from "p5";
 import Entity, { EntityInterface } from "./entity";
-import { gameMap, LAMA_SMOOTHNESS } from '../index';
+import { LAMA_SMOOTHNESS } from '../index';
 import Door from '../BuildBlocks/door';
 import Fraction from "../utils/fraction";
 import { config, globals } from "../utils/singletons";
+import game from "../Game";
 
 export interface MoveableInterface extends EntityInterface {
     dir: Vector | null;
@@ -54,7 +55,7 @@ class Moveable extends Entity implements MoveableInterface {
         if (x < 0 || x >= config.dimensions.gridWidth || y < 0 || y >= config.dimensions.gridHeight) {
             return false;
         }
-        let objectToCheck = gameMap[x] && gameMap[x][y];
+        let objectToCheck = game.map[x] && game.map[x][y];
         if (!objectToCheck) return false;
         if (objectToCheck && objectToCheck !== this && dirtocheck === this.dir) {
             objectToCheck.onCollision(this);
@@ -73,7 +74,7 @@ class Moveable extends Entity implements MoveableInterface {
 
 
     move(){
-        if(!globals.started) return;
+        if(!game.started) return;
         this.pos.add(this.dir.copy().mult(this.smoothness.toFloat()));
         this.movementFraction = this.movementFraction.add(this.smoothness);
         if (this.movementFraction.toFloat() >= 1) {

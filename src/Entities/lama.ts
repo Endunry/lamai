@@ -26,18 +26,26 @@ class Lama extends Moveable implements LamaInterface {
         alert("You died!");
     }
 
+    drawDebug(p5: P5): void {
+        p5.push();
+        p5.translate(this.pos.x * config.dimensions.gridSize + this.size / 2, this.pos.y * config.dimensions.gridSize + this.size / 2);
+        p5.noFill();
+        p5.stroke("orange");
+        p5.strokeWeight(3);
+        p5.ellipse(0, 0, config.dimensions.gridSize * 8 * 2, config.dimensions.gridSize * 8 * 2);
+        p5.pop();
+
+        p5.fill(255, 0, 0);
+        p5.ellipse(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize, this.size / 2, this.size / 2);
+        p5.fill(255, 255, 0);
+        p5.ellipse(this.logicalPosition.x * config.dimensions.gridSize, this.logicalPosition.y * config.dimensions.gridSize, this.size / 2, this.size / 2);
+    }
+
     draw(p5: P5) {
     
         p5.push();
         p5.translate(this.pos.x * config.dimensions.gridSize + this.size/2, this.pos.y * config.dimensions.gridSize + this.size/2);
         p5.noStroke();
-        if(globals.debug){
-            p5.noFill();
-            p5.stroke("orange");
-            p5.strokeWeight(3);
-            p5.ellipse(0, 0, config.dimensions.gridSize*8*2, config.dimensions.gridSize*8*2);
-            
-        }
         p5.strokeWeight(1);
         // flip the lama if he is moving left
         if(this.dir && (this.dir.x < 0 || this.flipped)){
@@ -56,12 +64,6 @@ class Lama extends Moveable implements LamaInterface {
         // p5.ellipse(0, 0, this._size);
 
         p5.pop();
-        if (globals.debug) {
-            p5.fill(255, 0, 0);
-            p5.ellipse(this.pos.x*config.dimensions.gridSize, this.pos.y*config.dimensions.gridSize, this.size / 2, this.size / 2);
-            p5.fill(255, 255, 0);
-            p5.ellipse(this.logicalPosition.x*config.dimensions.gridSize, this.logicalPosition.y*config.dimensions.gridSize, this.size / 2, this.size / 2);
-        }
     }
 
     powerUp(){

@@ -58,7 +58,6 @@ export const config = {
 
 export let globals = {
     debug: config.init.debug,
-    started: false,
     startTime: undefined as Date | undefined,
     score: 0,
     lives: config.player.lives,

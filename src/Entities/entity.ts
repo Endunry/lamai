@@ -6,12 +6,17 @@ export interface EntityInterface {
     onCollision(other: Entity): void;
     isColliding(pos:Vector, size:number, dir:Vector): boolean;
     draw(p5: P5): void;
+    drawDebug(p5: P5): void;
+
 }
 
 class Entity implements EntityInterface {
     pos: Vector;
     constructor(x: number, y: number){
         this.pos = new Vector(x,y);
+    }
+    drawDebug(p5: P5): void {
+        
     }
 
     draw(p5: P5){

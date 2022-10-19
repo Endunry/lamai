@@ -18,29 +18,29 @@
     <div id="wrapper">
         <div id="app"></div>
         <div id="toolbar" class="disabled">
-            <div onclick="Lamai.toolbarclick(this)" class="border" id="border"></div>
-            <div onclick="Lamai.toolbarclick(this)" class="void" id="void"></div>
-            <div onclick="Lamai.toolbarclick(this)" class="lama" id="lama"></div>
+            <div  class="border" id="border"></div>
+            <div  class="void" id="void"></div>
+            <div  class="lama" id="lama"></div>
             <div id="allGerturds">
-                <div class="gertrud1" onclick="Lamai.toolbarclick(this)" id="gertrud1"></div>
-                <div class="gertrud2" onclick="Lamai.toolbarclick(this)" id="gertrud2"></div>
-                <div class="gertrud3" onclick="Lamai.toolbarclick(this)" id="gertrud3"></div>
-                <div class="gertrud4" onclick="Lamai.toolbarclick(this)" id="gertrud4"></div>
+                <div class="gertrud1"  id="gertrud1"></div>
+                <div class="gertrud2"  id="gertrud2"></div>
+                <div class="gertrud3"  id="gertrud3"></div>
+                <div class="gertrud4"  id="gertrud4"></div>
             </div>
-            <div onclick="Lamai.toolbarclick(this)" class="cookie" id="cookie"></div>
-            <div onclick="Lamai.toolbarclick(this)" class="powerup" id="powerup"></div>
-            <div onclick="Lamai.toolbarclick(this)" class="delete" id="delete"></div>
-            <div onclick="Lamai.toolbarclick(this)" class="homeTarget" id="homeTarget">Home</div>
-            <div onclick="Lamai.toolbarclick(this)" class="homeWall" id="homeWall"></div>
+            <div  class="cookie" id="cookie"></div>
+            <div  class="powerup" id="powerup"></div>
+            <div  class="delete" id="delete"></div>
+            <div  class="homeTarget" id="homeTarget">Home</div>
+            <div  class="homeWall" id="homeWall"></div>
         </div>
         <div id="mode">
-            <button onclick="Lamai.activateEditing(this)" id="editBtn">Editieren</button>
+            <button id="editButton">Editieren</button>
             <div>
                 <span>Ausgewählt: </span>
                 <span id="currentSelection"></span>
             </div>
-            <button disabled onclick="Lamai.saveMap(this)" id="saveBtn">Speichern</button>
-            <button onclick="Lamai.loadMap(this)" id="saveBtn">Laden</button>
+            <button disabled id="saveButton">Speichern</button>
+            <button id="loadButton">Laden</button>
         </div>
         <span  id="io"></span>
     </div>
