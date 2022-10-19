@@ -24,7 +24,7 @@ export const GRID_WIDTH = 28;
 export const GRID_HEIGHT = 35;
 export const WIDTH = GRID_WIDTH * SIZE;
 export const HEIGHT = GRID_HEIGHT * SIZE;
-
+export let CANVAS_OBJ: P5.Renderer | null;
 
 export let BORDER_DRAWING = 'ORIGINAL';  // SIMPLE or ORIGINAL 
 export const DEBUG = true;
@@ -62,13 +62,12 @@ let START_TIME: Date;
 
 let currentSelection: string | null = null;
 export let arrayMap: (Entity | undefined)[][] = new Array(GRID_WIDTH).fill(0).map(() => new Array(GRID_HEIGHT));
-let started = false;
+export let STARTED = false;
 
-let timeInterval: NodeJS.Timer;
 window.addEventListener("keydown", function (e) {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-        if (!started) {
-            started = true;
+        if (!STARTED) {
+            STARTED = true;
             inky && inky.start();
             pinky && pinky.start();
             clyde && clyde.start();
@@ -80,7 +79,7 @@ window.addEventListener("keydown", function (e) {
 }, false);
 
 function initGame() {
-    started = false;
+    STARTED = false;
     let mapDataString = mapdatainit;
     let mapData = mapDataString;
 
@@ -108,70 +107,79 @@ window.onload = function () {
     initGame();
 }
 
+type ClickEvent = MouseEvent & { target: HTMLCanvasElement };
+
 const sketch = (p5: P5) => {
-    // p5.mousePressed = (event?: MouseEvent) => {
-    //     if(!event) return;
-    //     let insertedItem;
-    //     // Determine the x and y coords
-    //     let x = Math.floor(event.mouseX / SIZE);
-    //     let y = Math.floor(event.mouseY / SIZE);
-    //     let halfY = Math.floor(event.mouseY / (SIZE / 2));
-    //     let halfX = Math.floor(event.mouseX / (SIZE / 2));
-    //     // Check if the coords are in the map
-    //     if (x < 0 || x > GRID_WIDTH || y < 0 || y > GRID_HEIGHT) return;
-    //     const isOverlapping = (arrayMap[x] && arrayMap[x][y] != null);
 
-    //     switch (currentSelection) {
-    //         case 'void':
-    //             insertedItem = new Void(createVector(x, y));
-    //             break;
-    //         case 'border':
-    //             insertedItem = new Border(createVector(x, y));
-    //             break;
-    //         case 'cookie':
-    //             insertedItem = new Cookie(x, y);
-    //             break;
-    //         case 'powerup':
-    //             insertedItem = new Power(x, y);
-    //             break;
-    //         case 'gertrud1':
-    //             clyde = new Clyde(halfX / 2, halfY / 2);
-    //             break;
-    //         case 'gertrud2':
-    //             inky = new Pinky(halfX / 2, halfY / 2);
-    //             break;
-    //         case 'gertrud3':
-    //             pinky = new Blinky(halfX / 2, halfY / 2);
-    //             break;
-    //         case 'gertrud4':
-    //             blinky = new Inky(halfX / 2, halfY / 2);
-    //             break;
-    //         case 'lama':
-    //             lama = new Lama(createVector(halfX / 2, halfY / 2), SIZE);
-    //             return;
-    //         case 'homeTarget':
-    //             HOME_TARGET = createVector(x, halfY / 2);
-    //             return;
-    //         case 'homeWall':
-    //             insertedItem = new Door(x, halfY / 2);
-    //         case 'delete':
-    //             arrayMap[x][y] = null;
-    //             break;
-    //         default:
-    //             return;
-    //     }
-    //     // }
+    p5.mousePressed = (event?: ClickEvent ) => {
+        if(!event) return;
+        let insertedItem;
 
-    //     if (!isOverlapping && insertedItem) {
-    //         arrayMap[x][y] = insertedItem;
-    //     }
-    //     determineBorderTypes();
-    // }
+        // Determine the x and y coords
+        let rect = document.querySelector('#app canvas').getBoundingClientRect();
+        let x = Math.floor((event.clientX - rect.left) / SIZE);
+        let y = Math.floor((event.clientY - rect.top) / SIZE);
 
+        if(x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) return;
+        let halfX = Math.floor((event.clientX - rect.left) / (SIZE / 2));
+        let halfY = Math.floor((event.clientY - rect.top) / (SIZE / 2));
+        // Check if the coords are in the map
+        if (x < 0 || x > GRID_WIDTH || y < 0 || y > GRID_HEIGHT) return;
+        const isOverlapping = (arrayMap[x] && arrayMap[x][y] != null);
+
+        switch (currentSelection) {
+            case 'void':
+                insertedItem = new Void(new Vector(x, y));
+                break;
+            case 'border':
+                insertedItem = new Border(new Vector(x, y));
+                break;
+            case 'cookie':
+                insertedItem = new Cookie(x, y);
+                break;
+            case 'powerup':
+                insertedItem = new Power(x, y);
+                break;
+            case 'gertrud1':
+                clyde = new Clyde(halfX / 2, halfY / 2);
+                break;
+            case 'gertrud2':
+                inky = new Pinky(halfX / 2, halfY / 2);
+                break;
+            case 'gertrud3':
+                pinky = new Blinky(halfX / 2, halfY / 2);
+                break;
+            case 'gertrud4':
+                blinky = new Inky(halfX / 2, halfY / 2);
+                break;
+            case 'lama':
+                lama = new Lama(new Vector(halfX / 2, halfY / 2), SIZE);
+                return;
+            case 'homeTarget':
+                HOME_TARGET = new Vector(x, halfY / 2);
+                return;
+            case 'homeWall':
+                insertedItem = new Door(x, halfY / 2);
+            case 'delete':
+                arrayMap[x][y] = null;
+                break;
+            default:
+                return;
+        }
+        // }
+
+        if (!isOverlapping && insertedItem) {
+            arrayMap[x][y] = insertedItem;
+        }
+        determineBorderTypes();
+    }
+
+    p5.mouseDragged = p5.mousePressed;
 
     p5.setup = () => {
 
         // Load the images
+        p5.frameRate(60);
         setImages({
             pacman: p5.loadImage(LamaImg),
             blinky: p5.loadImage(BlinkyImg),
@@ -182,7 +190,7 @@ const sketch = (p5: P5) => {
             eaten: p5.loadImage(EatenImg),
         })
 
-        started = false;
+        STARTED = false;
         let mapDataString = mapdatainit;
         let mapData = mapDataString;
 
@@ -200,8 +208,8 @@ const sketch = (p5: P5) => {
         if (mapData.home) {
             HOME_TARGET = new Vector(mapData.home.x, mapData.home.y);
         }
-        const canvas = p5.createCanvas(WIDTH, HEIGHT);
-        canvas.parent('app');
+        CANVAS_OBJ = p5.createCanvas(WIDTH, HEIGHT);
+        CANVAS_OBJ.parent('app');
         determineBorderTypes()
         p5.imageMode(p5.CENTER);
         textx = 0;
@@ -209,8 +217,6 @@ const sketch = (p5: P5) => {
         p5.textSize(20);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.background(BACKGROUND);
-        timeInterval && clearInterval(timeInterval);
-        timeInterval = setInterval(timeLoop, 1000 / TIMESECONDS);
         // lama = new Lama(createVector(1, 1), SIZE);
     }
 
@@ -231,6 +237,15 @@ const sketch = (p5: P5) => {
             HOME_TARGET && p5.ellipse(HOME_TARGET.x * SIZE, HOME_TARGET.y * SIZE, 10, 10);
         }
 
+        if(STARTED) {
+        lama && lama.update();
+        inky && inky.update();
+        pinky && pinky.update();
+        clyde && clyde.update();
+        blinky && blinky.update();
+        START_TIME && checkTimeTable([inky, pinky, clyde, blinky]);
+        }
+
         lama && lama.draw(p5);
         arrayMap && arrayMap.forEach(col => col && col.forEach(item => item && item.draw(p5)));
         lama && lama.listenForKeys(p5);
@@ -239,6 +254,7 @@ const sketch = (p5: P5) => {
         pinky && pinky.draw(p5);
         clyde && clyde.draw(p5);
         blinky && blinky.draw(p5);
+
     }
 
 }
@@ -279,15 +295,6 @@ function determineBorderTypes() {
     }
 }
 
-function timeLoop() {
-    lama && lama.update();
-    inky && inky.update();
-    pinky && pinky.update();
-    clyde && clyde.update();
-    blinky && blinky.update();
-
-    START_TIME && checkTimeTable([inky, pinky, clyde, blinky]);
-}
 
 function checkTimeTable(ghosts: Array<Gertrud>) {
     /* Timetable to switch between Scatter and Chase in lvl 1 of original Pacman:
@@ -314,24 +321,24 @@ function checkTimeTable(ghosts: Array<Gertrud>) {
 
 }
 
-// function mouseDragged(event) {
-//     mousePressed();
-// }
+
+
+    
+    
 // TODO: Wieder alles einfügen hier mit click events und so dies das you know
-// function toolbarclick(target: MouseEvent["target"]) {
-//     currentSelection = target.id;
-//     let eClone = target.cloneNode(true);
-//     eClone.id = 'currentSelection';
-//     document.getElementById('currentSelection').replaceWith(eClone);
-// }
+export function toolbarclick(target: HTMLElement) {
+    currentSelection = target.id;
+    let eClone = target.cloneNode(true) as Element;
+    eClone.id = 'currentSelection';
+    document.getElementById('currentSelection').replaceWith(eClone);
+}
 
 
-// function activateEditing(button) {
-//     button.setAttribute('disabled', 'disabled');
-//     document.getElementById('toolbar').classList.remove("disabled");
-//     document.getElementById('saveBtn').removeAttribute('disabled');
-
-// }
+export function activateEditing(button: HTMLButtonElement) {
+    button.setAttribute('disabled', 'disabled');
+    document.getElementById('toolbar').classList.remove("disabled");
+    document.getElementById('saveBtn').removeAttribute('disabled');
+}
 
 // function loadMap() {
 //     let mapDataString = prompt("Mapdaten eingeben");
@@ -356,7 +363,7 @@ function checkTimeTable(ghosts: Array<Gertrud>) {
 //     setup();
 // }
 type printType = {x: any, y: any}[];
-function saveMap(button: HTMLButtonElement) {
+export function saveMap(button: HTMLButtonElement) {
     button.setAttribute('disabled', 'disabled');
     document.getElementById('toolbar').classList.add("disabled");
     document.getElementById('editBtn').removeAttribute('disabled');

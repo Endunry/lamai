@@ -1,14 +1,14 @@
 import p5, { Image, Vector } from "p5";
 import Entity, { EntityInterface } from "./entity";
-import { arrayMap, GRID_HEIGHT, GRID_WIDTH, LAMA_SMOOTHNESS } from './index';
+import { arrayMap, GRID_HEIGHT, GRID_WIDTH, LAMA_SMOOTHNESS, STARTED } from './index';
 import Door from './door';
 import Fraction from "./fraction";
 
 export interface MoveableInterface extends EntityInterface {
-    dir: Vector;
-    lastpos: Vector;
-    queuedir: Vector;
-    flipped: boolean;
+    dir: Vector | null;
+    lastpos: Vector ;
+    queuedir: Vector ;
+    flipped: boolean ;
     smoothness: Fraction;
     movementFraction: Fraction;
     points: number;
@@ -18,7 +18,7 @@ export interface MoveableInterface extends EntityInterface {
 
 class Moveable extends Entity implements MoveableInterface {
 
-    dir: p5.Vector;
+    dir: p5.Vector | null;
     lastpos: p5.Vector;
     queuedir: p5.Vector;
     flipped: boolean;
@@ -38,12 +38,8 @@ class Moveable extends Entity implements MoveableInterface {
         this.movementFraction = new Fraction(0,0);
         this.queuedir = new Vector(0, 0);
         this.logicalPosition = this.pos;
-        console.log(this.logicalPosition);
     }
 
-    updateP5(): void {
-        
-    }
     
     isInGrid() {
         return this.movementFraction.toFloat() == 1 || this.movementFraction.toFloat() == 0;
@@ -57,10 +53,9 @@ class Moveable extends Entity implements MoveableInterface {
         if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) {
             return false;
         }
-        let objectToCheck = arrayMap[x][y];
+        let objectToCheck = arrayMap[x] && arrayMap[x][y];
         if (!objectToCheck) return false;
         if (objectToCheck && objectToCheck !== this && dirtocheck === this.dir) {
-            console.log("COLL")
             objectToCheck.onCollision(this);
         }
         switch (objectToCheck.constructor.name) {
@@ -77,6 +72,7 @@ class Moveable extends Entity implements MoveableInterface {
 
 
     move(){
+        if(!STARTED) return;
         this.pos.add(this.dir.copy().mult(this.smoothness.toFloat()));
         this.movementFraction = this.movementFraction.add(this.smoothness);
         if (this.movementFraction.toFloat() >= 1) {
