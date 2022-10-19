@@ -1,18 +1,50 @@
-class Moveable extends Entity {
+import p5, { Image, Vector } from "p5";
+import Entity, { EntityInterface } from "./entity";
+import { arrayMap, GRID_HEIGHT, GRID_WIDTH, LAMA_SMOOTHNESS } from './index';
+import Door from './door';
+import Fraction from "./fraction";
 
-    constructor(x, y, img) {
+export interface MoveableInterface extends EntityInterface {
+    dir: Vector;
+    lastpos: Vector;
+    queuedir: Vector;
+    flipped: boolean;
+    smoothness: Fraction;
+    movementFraction: Fraction;
+    points: number;
+    logicalPosition: Vector;
+    update: () => void;
+}   
+
+class Moveable extends Entity implements MoveableInterface {
+
+    dir: p5.Vector;
+    lastpos: p5.Vector;
+    queuedir: p5.Vector;
+    flipped: boolean;
+    smoothness: Fraction;
+    movementFraction: Fraction;
+    logicalPosition: p5.Vector;
+    points: number;
+    pos: p5.Vector;
+
+    constructor(x: number, y:number) {
         super(x, y);
         this.dir = null;
         this.lastpos = this.pos;
-        this.img = loadImage(img);
         this.flipped = false;
         this.smoothness = LAMA_SMOOTHNESS;
+        this.points = 0;
         this.movementFraction = new Fraction(0,0);
-        this.queuedir = createVector(0, 0);
+        this.queuedir = new Vector(0, 0);
         this.logicalPosition = this.pos;
         console.log(this.logicalPosition);
     }
 
+    updateP5(): void {
+        
+    }
+    
     isInGrid() {
         return this.movementFraction.toFloat() == 1 || this.movementFraction.toFloat() == 0;
     }
@@ -35,7 +67,7 @@ class Moveable extends Entity {
             case "Border":
                 return true;
             case "Door":
-                return objectToCheck.getLegalDirection().heading() != dirtocheck.heading();
+                return (objectToCheck as Door).getLegalDirection().heading() != dirtocheck.heading();
             case "Cookie":
                 this.points++;
             default:
@@ -58,9 +90,8 @@ class Moveable extends Entity {
                 this.logicalPosition.x = GRID_WIDTH;
             }
             let normalizedDir = this.dir.copy().normalize();
-            this.logicalPosition = createVector(round(this.logicalPosition.x + normalizedDir.x), round(this.logicalPosition.y + normalizedDir.y));
+            this.logicalPosition = new Vector(Math.round(this.logicalPosition.x + normalizedDir.x), Math.round(this.logicalPosition.y + normalizedDir.y));
             this.pos = this.logicalPosition.copy();
-
             this.movementFraction = new Fraction(0, 0);
         }
 
@@ -80,6 +111,4 @@ class Moveable extends Entity {
     }
 }
 
-function customLerp(start, end, amt) {
-    return (1 - amt) * start + amt * end;
-}
+export default Moveable;

@@ -1,5 +1,19 @@
-class Fraction {
-    constructor(numerator, denominator) {
+interface FractionInterface{
+    numerator: number;
+    denominator: number;
+    toString(): string;
+    toFloat(): number;
+    add:(fraction: FractionInterface) => FractionInterface;
+    sub:(fraction: FractionInterface) => FractionInterface;
+    mul:(fraction: FractionInterface) => FractionInterface;
+    div:(fraction: FractionInterface) => FractionInterface;
+}
+
+class Fraction implements FractionInterface{
+    numerator: number;
+    denominator: number;
+
+    constructor(numerator: number, denominator: number) {
         // Check if we can round it
         if (numerator % denominator === 0) {
             this.numerator = numerator / denominator;
@@ -11,7 +25,7 @@ class Fraction {
         }
     }
 
-    add(fraction) {
+    add(fraction:FractionInterface) : FractionInterface {
         if (this.denominator == 0 && this.denominator == 0) {
             return fraction;
         }
@@ -22,7 +36,7 @@ class Fraction {
         }
     }
 
-    sub(fraction) {
+    sub(fraction:FractionInterface) {
         if (this.denominator == 0 && this.denominator == 0) {
             return new Fraction(-fraction.numerator, fraction.denominator);
         }
@@ -33,11 +47,11 @@ class Fraction {
         }
     }
 
-    mul(fraction) {
+    mul(fraction:FractionInterface) {
         return new Fraction(this.numerator * fraction.numerator, this.denominator * fraction.denominator);
     }
 
-    div(fraction) {
+    div(fraction:FractionInterface) {
         return new Fraction(this.numerator * fraction.denominator, this.denominator * fraction.numerator);
     }
 
@@ -53,3 +67,5 @@ class Fraction {
     }
 
 }
+
+export default Fraction;
