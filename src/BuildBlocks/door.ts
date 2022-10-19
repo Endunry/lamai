@@ -1,12 +1,12 @@
 import P5, { Vector } from "p5";
-import { SIZE } from ".";
-import Entity from "./entity";
+import { config, globals } from '../utils/singletons';
+import Entity from "../Entities/entity";
 
 class Door extends Entity{
     size: number;
     constructor(x:number,y:number){
         super(x,y);
-        this.size = SIZE;
+        this.size = config.dimensions.gridSize;
     }
 
     getLegalDirection(){
@@ -20,7 +20,7 @@ class Door extends Entity{
 
     draw(p5: P5){
         p5.push();
-        p5.translate(this.pos.x*SIZE, this.pos.y*SIZE);
+        p5.translate(this.pos.x*config.dimensions.gridSize, this.pos.y*config.dimensions.gridSize);
         p5.noStroke();
         p5.fill("yellow");
         p5.rect(0, 0, this.size, this.size/2);

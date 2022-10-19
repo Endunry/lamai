@@ -1,8 +1,8 @@
 
 import P5, { Vector } from 'p5';
 import HALF_PI from 'p5';
-import { SIZE, BORDER_DRAWING, DEBUG } from '.';
-import Entity, { EntityInterface } from './entity';
+import Entity, { EntityInterface } from '../Entities/entity';
+import { config, globals } from '../utils/singletons';
 
 
 
@@ -96,7 +96,7 @@ class Border extends Entity implements BorderInterface {
     _void_inner_tl: boolean;
     constructor(atPosition: Vector) {
         super(atPosition.x, atPosition.y);
-        this.size = SIZE;
+        this.size = config.dimensions.gridSize;
     }
 
     isSat(border: Array<number>, no_border: Array<number>, _void? : boolean) {
@@ -133,7 +133,7 @@ class Border extends Entity implements BorderInterface {
     setNeighbors(neighbors : Array<number>) {
         this._neighbors = neighbors;
 
-        if (BORDER_DRAWING == 'SIMPLE') {
+        if (globals.borderDrawing == 'simple') {
             this._top = this.isSat([3, 1], [0])
             this._bottom = this.isSat([3, 1], [2])
             this._right = this.isSat([0, 2], [1])
@@ -156,7 +156,7 @@ class Border extends Entity implements BorderInterface {
             this._vertical_bottom = this.isSat([2], [1, 0, 3]) || (this.isSat([0], [1, 3]) && this.isSat([], [2], true));
 
             this._single = this.isSat([], [0, 1, 2, 3])
-        } else if (BORDER_DRAWING == 'ORIGINAL') {
+        } else if (globals.borderDrawing == 'original') {
             this._tr = this.isSat([3, 2],[6], false) || this.isSat([2, 3],[0, 1], false);
             this._br = this.isSat([0, 3],[7], false) || this.isSat([0, 3],[1, 2], false);
             this._bl = this.isSat([0, 1],[4], false) || this.isSat([0, 1],[2, 3], false);
@@ -199,8 +199,8 @@ class Border extends Entity implements BorderInterface {
 
         p5.push();
 
-        p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
-        if (DEBUG) {
+        p5.translate(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize);
+        if (globals.debug) {
             p5.noStroke();
             p5.fill(64, 64, 255, 64);
             p5.rect(0, 0, this.size, this.size);
@@ -211,7 +211,7 @@ class Border extends Entity implements BorderInterface {
 
         let size = this.size;
 
-        if (BORDER_DRAWING == 'SIMPLE') {
+        if (globals.borderDrawing == 'simple') {
             let padding = size / 3;
 
             if (this._top) {
@@ -288,7 +288,7 @@ class Border extends Entity implements BorderInterface {
             if (this._single) {
                 p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, p5.TWO_PI)
             }
-        } else if (BORDER_DRAWING == 'ORIGINAL') {
+        } else if (globals.borderDrawing == 'original') {
             let padding = size / 2;
     
             if (this._horizontal_left) {

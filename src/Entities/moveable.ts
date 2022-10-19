@@ -1,8 +1,9 @@
 import p5, { Image, Vector } from "p5";
 import Entity, { EntityInterface } from "./entity";
-import { arrayMap, GRID_HEIGHT, GRID_WIDTH, LAMA_SMOOTHNESS, STARTED } from './index';
-import Door from './door';
-import Fraction from "./fraction";
+import { gameMap, LAMA_SMOOTHNESS } from '../index';
+import Door from '../BuildBlocks/door';
+import Fraction from "../utils/fraction";
+import { config, globals } from "../utils/singletons";
 
 export interface MoveableInterface extends EntityInterface {
     dir: Vector | null;
@@ -50,10 +51,10 @@ class Moveable extends Entity implements MoveableInterface {
         if (!dirtocheck) return;
         let x = this.logicalPosition.x + dirtocheck.x;
         let y = this.logicalPosition.y + dirtocheck.y;
-        if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) {
+        if (x < 0 || x >= config.dimensions.gridWidth || y < 0 || y >= config.dimensions.gridHeight) {
             return false;
         }
-        let objectToCheck = arrayMap[x] && arrayMap[x][y];
+        let objectToCheck = gameMap[x] && gameMap[x][y];
         if (!objectToCheck) return false;
         if (objectToCheck && objectToCheck !== this && dirtocheck === this.dir) {
             objectToCheck.onCollision(this);
@@ -72,18 +73,18 @@ class Moveable extends Entity implements MoveableInterface {
 
 
     move(){
-        if(!STARTED) return;
+        if(!globals.started) return;
         this.pos.add(this.dir.copy().mult(this.smoothness.toFloat()));
         this.movementFraction = this.movementFraction.add(this.smoothness);
         if (this.movementFraction.toFloat() >= 1) {
             // Normalize the Vectors
             // Get the nomralized Direction Vector
-            if (this.pos.x > GRID_WIDTH) {
+            if (this.pos.x > config.dimensions.gridWidth) {
                 this.logicalPosition.x = 0;
 
             }
             if (this.pos.x < 0) {
-                this.logicalPosition.x = GRID_WIDTH;
+                this.logicalPosition.x = config.dimensions.gridWidth;
             }
             let normalizedDir = this.dir.copy().normalize();
             this.logicalPosition = new Vector(Math.round(this.logicalPosition.x + normalizedDir.x), Math.round(this.logicalPosition.y + normalizedDir.y));

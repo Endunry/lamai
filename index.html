@@ -6,9 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="./dist/bundle.js"></script>
+    <script type="text/javascript" src="./dist/bundle.js" defer></script>
 </head>
 <body>
+    <div class="swcont">
+        <span id="debugSwitch">Debug</span>
+        <label class="switch" id="debugMode"><input type="checkbox" />
+            <div></div>
+        </label>
+    </div>
     <div id="wrapper">
         <div id="app"></div>
         <div id="toolbar" class="disabled">

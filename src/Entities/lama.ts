@@ -1,8 +1,7 @@
 import Moveable, { MoveableInterface } from "./moveable";
 import { Vector } from 'p5';
-import { DEBUG, SIZE } from ".";
 import P5 from 'p5';
-import { getImages } from './singletons';
+import { config, getImages, globals } from '../utils/singletons';
 
 export interface LamaInterface extends MoveableInterface{
     size: number;
@@ -30,13 +29,13 @@ class Lama extends Moveable implements LamaInterface {
     draw(p5: P5) {
     
         p5.push();
-        p5.translate(this.pos.x * SIZE + this.size/2, this.pos.y * SIZE + this.size/2);
+        p5.translate(this.pos.x * config.dimensions.gridSize + this.size/2, this.pos.y * config.dimensions.gridSize + this.size/2);
         p5.noStroke();
-        if(DEBUG){
+        if(globals.debug){
             p5.noFill();
             p5.stroke("orange");
             p5.strokeWeight(3);
-            p5.ellipse(0, 0, SIZE*8*2, SIZE*8*2);
+            p5.ellipse(0, 0, config.dimensions.gridSize*8*2, config.dimensions.gridSize*8*2);
             
         }
         p5.strokeWeight(1);
@@ -57,11 +56,11 @@ class Lama extends Moveable implements LamaInterface {
         // p5.ellipse(0, 0, this._size);
 
         p5.pop();
-        if (DEBUG) {
+        if (globals.debug) {
             p5.fill(255, 0, 0);
-            p5.ellipse(this.pos.x*SIZE, this.pos.y*SIZE, this.size / 2, this.size / 2);
+            p5.ellipse(this.pos.x*config.dimensions.gridSize, this.pos.y*config.dimensions.gridSize, this.size / 2, this.size / 2);
             p5.fill(255, 255, 0);
-            p5.ellipse(this.logicalPosition.x*SIZE, this.logicalPosition.y*SIZE, this.size / 2, this.size / 2);
+            p5.ellipse(this.logicalPosition.x*config.dimensions.gridSize, this.logicalPosition.y*config.dimensions.gridSize, this.size / 2, this.size / 2);
         }
     }
 
@@ -116,7 +115,7 @@ class Lama extends Moveable implements LamaInterface {
     //             this.pos.x = 0;
     //         }
     //         if(this.pos.x < 0){
-    //             this.pos.x = width-SIZE;
+    //             this.pos.x = width-config.dimensions.gridSize;
     //         }
     //     }
     // }

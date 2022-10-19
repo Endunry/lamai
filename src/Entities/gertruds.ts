@@ -7,9 +7,9 @@ SCATTER/CHASE: 7" 20" 7" 20" 5" 20" 5" -
 
 import P5, { Vector } from "p5";
 import HALF_PI from "p5";
-import { SIZE, GERTRUD_SMOOTHNESS, DEBUG, GRID_WIDTH, GRID_HEIGHT, HOME_TARGET, lama, blinky } from ".";
+import { GERTRUD_SMOOTHNESS, WIDTH, HOME_TARGET, lama, blinky } from "..";
 import Moveable, { MoveableInterface } from "./moveable";
-import { getImages } from './singletons';
+import { config, getImages, globals } from '../utils/singletons';
 import { Image } from 'p5';
 
 let FLEESTART: Date;
@@ -52,7 +52,7 @@ class Gertrud extends Moveable implements GertrudInterface {
     size: number;
         constructor(x:number, y:number, type: "blinky" | "pinky" | "inky" | "clyde") {
             super(x, y);
-            this.size = SIZE;
+            this.size = config.dimensions.gridSize;
             this.fleeImg = getImages().frightened;
             this.eatenImg = getImages().eaten;
             this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
@@ -94,6 +94,7 @@ class Gertrud extends Moveable implements GertrudInterface {
     flee(){
         if(this.state != "eaten"){
             FLEESTART = new Date()
+            this.queueState(this.state);
             this.state = "frightened";
             // Turn around 180deg
             this.dir = this.dir.copy().mult(-1);
@@ -122,6 +123,11 @@ class Gertrud extends Moveable implements GertrudInterface {
                 case "chase":
                     return this.chaseTarget();
                 case "frightened":
+                    if(!FLEESTART){
+                        this.state = this.queuedState;
+                        FLEESTART = null;
+                        return this.calculateTarget();
+                    }
                     let thisTime = new Date();
                     let timeDiff = thisTime.getTime() - FLEESTART.getTime();
                     let seconds = Math.floor(timeDiff / 1000);
@@ -185,13 +191,13 @@ class Gertrud extends Moveable implements GertrudInterface {
 
         
             p5.push();
-            if (DEBUG) {
+            if (globals.debug) {
                 p5.fill(this.targetColor);
-                p5.circle(this.pos.x * SIZE, this.pos.y * SIZE, SIZE / 2);
+                p5.circle(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize, config.dimensions.gridSize / 2);
                 p5.fill(this.targetColor);
-                p5.circle(this.logicalPosition.x * SIZE, this.logicalPosition.y * SIZE, SIZE / 2);
+                p5.circle(this.logicalPosition.x * config.dimensions.gridSize, this.logicalPosition.y * config.dimensions.gridSize, config.dimensions.gridSize / 2);
             }
-            p5.translate(this.pos.x * SIZE + this.size / 2, this.pos.y * SIZE + this.size / 2);
+            p5.translate(this.pos.x * config.dimensions.gridSize + this.size / 2, this.pos.y * config.dimensions.gridSize + this.size / 2);
             p5.noStroke();
             // flip the lama if he is moving left
             if (this.dir && (this.dir.x < 0 || this.flipped)) {
@@ -213,9 +219,9 @@ class Gertrud extends Moveable implements GertrudInterface {
             // p5.ellipse(0, 0, this.size);
 
             p5.pop();
-            if (DEBUG && this.target && this.targetColor) {
+            if (globals.debug && this.target && this.targetColor) {
                 p5.fill(this.targetColor);
-                p5.ellipse(this.target.x * SIZE, this.target.y * SIZE, 10, 10);
+                p5.ellipse(this.target.x * config.dimensions.gridSize, this.target.y * config.dimensions.gridSize, 10, 10);
             }
         
     }
@@ -277,7 +283,7 @@ export class Pinky extends Gertrud {
 export class Blinky extends Gertrud {
     constructor(x:number, y:number) {
         super(x, y, "blinky");
-        this.scatterTarget = new Vector(GRID_WIDTH - 2, 0);
+        this.scatterTarget = new Vector(config.dimensions.gridWidth - 2, 0);
         this.targetColor = "red";
     }
 
@@ -289,7 +295,7 @@ export class Blinky extends Gertrud {
 export class Inky extends Gertrud {
     constructor(x: number, y: number) {
         super(x, y, "inky");
-        this.scatterTarget = new Vector(GRID_WIDTH, GRID_HEIGHT - 1);
+        this.scatterTarget = new Vector(config.dimensions.gridWidth, config.dimensions.gridHeight - 1);
         this.targetColor = "cyan";
     }
 
@@ -301,7 +307,7 @@ export class Inky extends Gertrud {
 export class Clyde extends Gertrud {
     constructor(x:number, y:number) {
         super(x, y, "clyde");
-        this.scatterTarget = new Vector(0, GRID_HEIGHT - 1);
+        this.scatterTarget = new Vector(0, config.dimensions.gridHeight - 1);
         this.targetColor = "orange";
     }
 

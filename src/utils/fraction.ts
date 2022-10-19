@@ -15,14 +15,16 @@ class Fraction implements FractionInterface{
 
     constructor(numerator: number, denominator: number) {
         // Check if we can round it
-        if (numerator % denominator === 0) {
-            this.numerator = numerator / denominator;
-            this.denominator = 1;
-        } else {
 
-            this.numerator = numerator;
-            this.denominator = denominator;
-        }
+            if (numerator % denominator === 0) {
+                this.numerator = numerator / denominator;
+                this.denominator = 1;
+            } else {
+                
+                this.numerator = numerator;
+                this.denominator = denominator;
+            }
+        
     }
 
     add(fraction:FractionInterface) : FractionInterface {
@@ -64,6 +66,30 @@ class Fraction implements FractionInterface{
             return 0;
         }
         return this.numerator / this.denominator;
+    }
+
+    static getLowestFraction(decimal:number){
+        // Code originally by @Martin R (https://stackoverflow.com/a/14011299/14379859 How to simplify a decimal into the smallest possible fraction?) [10/19/2022]
+        const eps:number = 1.0E-15;
+        var h, h1, h2, k, k1, k2, a, x;
+
+        x = decimal;
+        a = Math.floor(x);
+        h1 = 1;
+        k1 = 0;
+        h = a;
+        k = 1;
+
+        while (x - a > eps * k * k) {
+            x = 1 / (x - a);
+            a = Math.floor(x);
+            h2 = h1; h1 = h;
+            k2 = k1; k1 = k;
+            h = h2 + a * h1;
+            k = k2 + a * k1;
+        }
+
+        return new Fraction(h, k);    
     }
 
 }
