@@ -5,32 +5,73 @@ SCATTER/CHASE: 7" 20" 7" 20" 5" 20" 5" -
 
 */
 
-let FLEESTART;
+import P5, { Vector } from "p5";
+import HALF_PI from "p5";
+import { SIZE, GERTRUD_SMOOTHNESS, DEBUG, GRID_WIDTH, GRID_HEIGHT, HOME_TARGET, lama, blinky } from ".";
+import Moveable, { MoveableInterface } from "./moveable";
+import { getImages } from './singletons';
+import { Image } from 'p5';
 
-class Gertrud extends Moveable {
+let FLEESTART: Date;
 
-    constructor(x, y, type) {
-        super(x, y, `./src/Gertrud${type}.png`);
-        this._size = SIZE;
-        this.fleeImg = loadImage(`./src/Gertrud5.png`);
-        this.eatenImg = loadImage(`./src/Gertrud6.png`);
-        this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
-        this.target = null; // the target tile (determined by the state and type of ghost)
-        this.collided = true;
-        this.scatterTarget = null;
-        this.firstState = "escaping";
-        this.smoothness = GERTRUD_SMOOTHNESS;
-        this.targetColor = null;
-        this.queuedState = this.firstState;
-        this.dir = createVector(1, 0);
-    }
+export type GertrudState = 'idle' | 'escaping' | 'scatter' | 'chase' | 'frightened' | 'eaten';
 
+interface GertrudInterface extends MoveableInterface {
+    state: GertrudState;
+    target: Vector;
+    scatterTarget: Vector;
+    firstState: GertrudState;
+    targetColor: string;
+    queuedState: GertrudState;
+    size: number;
+    fleeImg: Image;
+    eatenImg: Image;
+    image: Image;
+    chaseTarget: () => Vector;
+    calculateTarget: () => Vector;
+    queueState: (state: GertrudState) => void;
+    scatter: () => void;
+    chase: () => void;
+    flee: () => void;
+    eaten: () => void;
+    frightenedTarget: () => Vector;
+    eatenTarget: () => Vector;
+    getPossibleDirections: () => Vector[];
+}
+
+class Gertrud extends Moveable implements GertrudInterface {
+    state: GertrudState;
+    target: Vector;
+    scatterTarget: Vector;
+    firstState: GertrudState;
+    targetColor: string;
+    queuedState: GertrudState;
+    fleeImg: Image;
+    eatenImg: Image;
+    image: Image;
+    size: number;
+        constructor(x:number, y:number, type: "blinky" | "pinky" | "inky" | "clyde") {
+            super(x, y);
+            this.size = SIZE;
+            this.fleeImg = getImages().frightened;
+            this.eatenImg = getImages().eaten;
+            this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
+            this.target = null; // the target tile (determined by the state and type of ghost)
+            this.image = getImages()[type] || getImages().clyde;
+            this.scatterTarget = null;
+            this.firstState = 'escaping';
+            this.smoothness = GERTRUD_SMOOTHNESS;
+            this.targetColor = null;
+            this.queuedState = this.firstState;
+            this.dir = new Vector(1, 0);
+        }
+    
 
     start() {
         this.state = this.firstState;
     }
 
-    queueState(state){
+    queueState(state: GertrudState){
         this.queuedState = state;
     }
 
@@ -65,7 +106,7 @@ class Gertrud extends Moveable {
 
 
 
-    calculateTarget() {
+    calculateTarget() : Vector {
         switch (this.state) {
 
             case "escaping":
@@ -82,7 +123,7 @@ class Gertrud extends Moveable {
                     return this.chaseTarget();
                 case "frightened":
                     let thisTime = new Date();
-                    let timeDiff = thisTime - FLEESTART;
+                    let timeDiff = thisTime.getTime() - FLEESTART.getTime();
                     let seconds = Math.floor(timeDiff / 1000);
                     if (seconds > 10) {
                         this.state = this.queuedState;
@@ -106,7 +147,7 @@ class Gertrud extends Moveable {
     }
 
     frightenedTarget(){
-        return createVector(0,0);
+        return new Vector(0,0);
     }
 
     eatenTarget(){
@@ -116,7 +157,7 @@ class Gertrud extends Moveable {
     getPossibleDirections() {
         let possibleDirections = [];
         const s = 1;
-        for (let dir of [createVector(s, 0), createVector(-s, 0), createVector(0, s), createVector(0, -s)]) {
+        for (let dir of [new Vector(s, 0), new Vector(-s, 0), new Vector(0, s), new Vector(0, -s)]) {
 
             if (this.checkForCollision(dir)) continue;
             if (this.dir.copy().mult(-1).equals(dir)) continue;
@@ -140,41 +181,41 @@ class Gertrud extends Moveable {
              }
          }
 
-    draw() {
+    draw(p5: P5) {
 
         
-            push();
+            p5.push();
             if (DEBUG) {
-                fill(this.targetColor);
-                circle(this.pos.x * SIZE, this.pos.y * SIZE, SIZE / 2);
-                fill(this.targetColor);
-                circle(this.logicalPosition.x * SIZE, this.logicalPosition.y * SIZE, SIZE / 2);
+                p5.fill(this.targetColor);
+                p5.circle(this.pos.x * SIZE, this.pos.y * SIZE, SIZE / 2);
+                p5.fill(this.targetColor);
+                p5.circle(this.logicalPosition.x * SIZE, this.logicalPosition.y * SIZE, SIZE / 2);
             }
-            translate(this.pos.x * SIZE + this._size / 2, this.pos.y * SIZE + this._size / 2);
-            noStroke();
+            p5.translate(this.pos.x * SIZE + this.size / 2, this.pos.y * SIZE + this.size / 2);
+            p5.noStroke();
             // flip the lama if he is moving left
             if (this.dir && (this.dir.x < 0 || this.flipped)) {
                 if (this.dir.x > 0) {
                     this.flipped = false;
                 } else {
-                    scale(-1, 1);
+                    p5.scale(-1, 1);
                     this.flipped = true;
                 }
             }
             if (this.state == "frightened") {
-                image(this.fleeImg, 0, 0, this._size * 1.6, this._size * 1.6);
+                p5.image(this.fleeImg, 0, 0, this.size * 1.6, this.size * 1.6);
             } else if (this.state == "eaten") {
-                image(this.eatenImg, 0, 0, this._size * 1.6, this._size * 1.6);
+                p5.image(this.eatenImg, 0, 0, this.size * 1.6, this.size * 1.6);
             }else{
-                image(this.img, 0, 0, this._size * 1.9, this._size * 1.9);
+                p5.image(this.image, 0, 0, this.size * 1.9, this.size * 1.9);
             }
             // include img
-            // p5.ellipse(0, 0, this._size);
+            // p5.ellipse(0, 0, this.size);
 
-            pop();
+            p5.pop();
             if (DEBUG && this.target && this.targetColor) {
-                fill(this.targetColor);
-                ellipse(this.target.x * SIZE, this.target.y * SIZE, 10, 10);
+                p5.fill(this.targetColor);
+                p5.ellipse(this.target.x * SIZE, this.target.y * SIZE, 10, 10);
             }
         
     }
@@ -217,48 +258,51 @@ class Gertrud extends Moveable {
 
 }
 
-class Pinky extends Gertrud {
-    constructor(x, y) {
-        super(x, y, "2");
-        this.scatterTarget = createVector(3, 0)
-        this.targetColor = color("pink");
+export class Pinky extends Gertrud {
+    constructor(x: number, y:number) {
+        super(x, y, "pinky");
+        this.scatterTarget = new Vector(3, 0)
+        this.targetColor = "pink";
     }
 
     chaseTarget(){
         if(lama.dir.heading() == -HALF_PI){
-            return createVector(lama.logicalPosition.x - 4, lama.logicalPosition.y - 4);
+            return new Vector(lama.logicalPosition.x - 4, lama.logicalPosition.y - 4);
         } else{
             return lama.logicalPosition.copy().add(lama.dir.copy().mult(4));
         }
     }
 }
-class Blinky extends Gertrud {
-    constructor(x, y) {
-        super(x, y, "3");
-        this.scatterTarget = createVector(GRID_WIDTH - 2, 0);
-        this.targetColor = color("red");
+
+export class Blinky extends Gertrud {
+    constructor(x:number, y:number) {
+        super(x, y, "blinky");
+        this.scatterTarget = new Vector(GRID_WIDTH - 2, 0);
+        this.targetColor = "red";
     }
 
     chaseTarget(){
         return lama.pos;
     }
 }
-class Inky extends Gertrud {
-    constructor(x, y) {
-        super(x, y, "4");
-        this.scatterTarget = createVector(GRID_WIDTH, GRID_HEIGHT - 1);
-        this.targetColor = color("cyan");
+
+export class Inky extends Gertrud {
+    constructor(x: number, y: number) {
+        super(x, y, "inky");
+        this.scatterTarget = new Vector(GRID_WIDTH, GRID_HEIGHT - 1);
+        this.targetColor = "cyan";
     }
 
     chaseTarget(){
-        return createVector(2 * lama.logicalPosition.x - blinky.logicalPosition.x, 2 * lama.logicalPosition.y - blinky.logicalPosition.y);
+        return new Vector(2 * lama.logicalPosition.x - blinky.logicalPosition.x, 2 * lama.logicalPosition.y - blinky.logicalPosition.y);
     }
 }
-class Clyde extends Gertrud {
-    constructor(x, y) {
-        super(x, y, "1");
-        this.scatterTarget = createVector(0, GRID_HEIGHT - 1);
-        this.targetColor = color("orange");
+
+export class Clyde extends Gertrud {
+    constructor(x:number, y:number) {
+        super(x, y, "clyde");
+        this.scatterTarget = new Vector(0, GRID_HEIGHT - 1);
+        this.targetColor = "orange";
     }
 
     chaseTarget(){
@@ -269,3 +313,5 @@ class Clyde extends Gertrud {
         }
     }
 }
+
+export default Gertrud;

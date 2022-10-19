@@ -2804,3 +2804,4 @@ const mapdatainit = {
         "y": 15.5
     }]
 }
+export default mapdatainit;

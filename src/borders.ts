@@ -1,11 +1,105 @@
-class Border extends Entity {
 
-    constructor(atPosition) {
+import P5, { Vector } from 'p5';
+import HALF_PI from 'p5';
+import { SIZE, BORDER_DRAWING, DEBUG } from '.';
+import Entity, { EntityInterface } from './entity';
+
+
+
+interface BorderInterface extends EntityInterface{
+    size: number;
+    _neighbors: Array<number>;
+    _top: boolean;
+    _bottom: boolean;
+    _left: boolean;
+    _right: boolean;
+    _outer_tr: boolean;
+    _outer_br: boolean;
+    _outer_bl: boolean;
+    _outer_tl: boolean;
+    _inner_tr: boolean;
+    _inner_br: boolean;
+    _inner_bl: boolean;
+    _inner_tl: boolean;
+    _horizontal_left: boolean;
+    _horizontal_right: boolean;
+    _vertical_top: boolean;
+    _vertical_bottom: boolean;
+    _single: boolean;
+    _tr: boolean;
+    _br: boolean;
+    _bl: boolean;
+    _tl: boolean;
+    _horizontal: boolean;
+    _horizontal_top: boolean;
+    _horizontal_bottom: boolean;
+    _vertical: boolean;
+    _vertical_right: boolean;
+    _vertical_left: boolean;
+    _void_top: boolean;
+    _void_bottom: boolean;
+    _void_right: boolean;
+    _void_left: boolean;
+    _void_outer_tr: boolean;
+    _void_outer_br: boolean;
+    _void_outer_bl: boolean;
+    _void_outer_tl: boolean;
+    _void_inner_tr: boolean;
+    _void_inner_br: boolean;
+    _void_inner_bl: boolean;
+    _void_inner_tl: boolean;
+    isSat(border: Array<number>, no_border: Array<number>, _void: boolean | undefined) : boolean;
+    setNeighbors(neighbors: Array<number>) : void;
+}
+
+class Border extends Entity implements BorderInterface {
+    size: number;
+    _top: boolean = false;
+    _bottom: boolean = false;
+    _left: boolean = false;
+    _right: boolean = false;
+    _neighbors: Array<number> = [];
+    _outer_tr: boolean;
+    _outer_br: boolean;
+    _outer_bl: boolean;
+    _outer_tl: boolean;
+    _inner_tr: boolean;
+    _inner_br: boolean;
+    _inner_bl: boolean;
+    _inner_tl: boolean;
+    _horizontal_left: boolean;
+    _horizontal_right: boolean;
+    _vertical_top: boolean;
+    _vertical_bottom: boolean;
+    _single: boolean;
+    _tr: boolean;
+    _br: boolean;
+    _bl: boolean;
+    _tl: boolean;
+    _horizontal: boolean;
+    _horizontal_top: boolean;
+    _horizontal_bottom: boolean;
+    _vertical: boolean;
+    _vertical_right: boolean;
+    _vertical_left: boolean;
+    _void_top: boolean;
+    _void_bottom: boolean;
+    _void_right: boolean;
+    _void_left: boolean;
+    _void_outer_tr: boolean;
+    _void_outer_br: boolean;
+    _void_outer_bl: boolean;
+    _void_outer_tl: boolean;
+    _void_inner_tr: boolean;
+    _void_inner_br: boolean;
+    _void_inner_bl: boolean;
+    _void_inner_tl: boolean;
+    constructor(atPosition: Vector) {
         super(atPosition.x, atPosition.y);
-        this._size = SIZE;
+        this.size = SIZE;
     }
 
-    isSat(border, no_border, _void) {
+    isSat(border: Array<number>, no_border: Array<number>, _void? : boolean) {
         for (let i of border) {
             if (this._neighbors[i] != 1) {
                 return false;
@@ -36,7 +130,7 @@ class Border extends Entity {
     //   7  0  4
     //   3     1
     //   6  2  5
-    setNeighbors(neighbors) {
+    setNeighbors(neighbors : Array<number>) {
         this._neighbors = neighbors;
 
         if (BORDER_DRAWING == 'SIMPLE') {
@@ -101,177 +195,179 @@ class Border extends Entity {
         }
     }
 
-    draw() {
+    draw(p5: P5) {
 
-        push();
+        p5.push();
 
-        translate(this.pos.x * SIZE, this.pos.y * SIZE);
+        p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
         if (DEBUG) {
-            noStroke();
-            fill(64, 64, 255, 64);
-            rect(0, 0, this._size, this._size);
+            p5.noStroke();
+            p5.fill(64, 64, 255, 64);
+            p5.rect(0, 0, this.size, this.size);
         }
-        noFill();
-        strokeWeight(4);
-        stroke(64, 64, 255);
+        p5.noFill();
+        p5.strokeWeight(4);
+        p5.stroke(64, 64, 255);
 
-        let size = this._size;
+        let size = this.size;
 
         if (BORDER_DRAWING == 'SIMPLE') {
             let padding = size / 3;
 
             if (this._top) {
-                line(0, padding, size, padding);
+                p5.line(0, padding, size, padding);
             }
             if (this._bottom) {
-                line(0, size - padding, size, size - padding);
+                p5.line(0, size - padding, size, size - padding);
             }
             if (this._right) {
-                line(size - padding, 0, size - padding, size);
+                p5.line(size - padding, 0, size - padding, size);
             }
             if (this._left) {
-                line(padding, 0, padding, size);
+                p5.line(padding, 0, padding, size);
             }
 
             if (this._horizontal_left) {
-                line(0, padding, size / 2, padding);
-                line(0, size - padding, size / 2, size - padding);
+                p5.line(0, padding, size / 2, padding);
+                p5.line(0, size - padding, size / 2, size - padding);
                 if (!this._horizontal_right) {
-                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 3 * HALF_PI, HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 3 * p5.HALF_PI, p5.HALF_PI)
                 }
             }
             if (this._horizontal_right) {
-                line(size / 2, padding, size, padding);
-                line(size / 2, size - padding, size, size - padding);
+                p5.line(size / 2, padding, size, padding);
+                p5.line(size / 2, size - padding, size, size - padding);
                 if (!this._horizontal_left) {
-                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, HALF_PI, 3 * HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, p5.HALF_PI, 3 * p5.HALF_PI)
                 }
             }
             if (this._vertical_top) {
-                line(size - padding, 0, size - padding, size / 2);
-                line(padding, 0, padding, size / 2);
+                p5.line(size - padding, 0, size - padding, size / 2);
+                p5.line(padding, 0, padding, size / 2);
                 if (!this._vertical_bottom) {
-                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, 2 * HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, 2 * p5.HALF_PI)
                 }
             }
             if (this._vertical_bottom) {
-                line(size - padding, size / 2, size - padding, size);
-                line(padding, size / 2, padding, size);
+                p5.line(size - padding, size / 2, size - padding, size);
+                p5.line(padding, size / 2, padding, size);
                 if (!this._vertical_top) {
-                    arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 2 * HALF_PI, 0)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 2 * p5.HALF_PI, 0)
                 }
             }
 
-            noFill();
+            p5.noFill();
 
             if (this._outer_tr) {
-                arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * HALF_PI, 0);
+                p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._outer_br) {
-                arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, HALF_PI);
+                p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, p5.HALF_PI);
             }
             if (this._outer_bl) {
-                arc(size, 0, (size - padding) * 2, (size - padding) * 2, HALF_PI, 2 * HALF_PI);
+                p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._outer_tl) {
-                arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
+                p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
 
 
             if (this._inner_tr) {
-                arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._inner_br) {
-                arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
             if (this._inner_bl) {
-                arc(0, size, padding * 2, padding * 2, 3 * HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._inner_tl) {
-                arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
 
             if (this._single) {
-                arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, TWO_PI)
+                p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, p5.TWO_PI)
             }
         } else if (BORDER_DRAWING == 'ORIGINAL') {
             let padding = size / 2;
     
             if (this._horizontal_left) {
-                line(0, padding, size / 2, padding);
+                p5.line(0, padding, size / 2, padding);
             }
             if (this._horizontal_right) {
-                line(size / 2, padding, size, padding);
+                p5.line(size / 2, padding, size, padding);
             }
             if (this._vertical_top) {
-                line(size - padding, 0, size - padding, size / 2);
+                p5.line(size - padding, 0, size - padding, size / 2);
             }
             if (this._vertical_bottom) {
-                line(size - padding, size / 2, size - padding, size);
+                p5.line(size - padding, size / 2, size - padding, size);
             }
     
             if (this._tr) {
-                arc(0, size, padding * 2, padding * 2, 3 * HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._br) {
-                arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
             if (this._bl) {
-                arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._tl) {
-                arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
     
     
-            padding = this._size / 3;
+            padding = this.size / 3;
     
             if (this._single) {
-                arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, TWO_PI);
+                p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, p5.TWO_PI);
             }
     
     
             padding = 2;
     
             if (this._void_top || this._horizontal_top) {
-                line(0, padding, size, padding);
+                p5.line(0, padding, size, padding);
             }
             if (this._void_bottom || this._horizontal_bottom) {
-                line(0, size - padding, size, size - padding);
+                p5.line(0, size - padding, size, size - padding);
             }
             if (this._void_right || this._vertical_right) {
-                line(size - padding, 0, size - padding, size);
+                p5.line(size - padding, 0, size - padding, size);
             }
             if (this._void_left || this._vertical_left) {
-                line(padding, 0, padding, size);
+                p5.line(padding, 0, padding, size);
             }
     
             if (this._void_outer_tr) {
-                arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * HALF_PI, 0);
+                p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._void_outer_br) {
-                arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, HALF_PI);
+                p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, p5.HALF_PI);
             }
             if (this._void_outer_bl) {
-                arc(size, 0, (size - padding) * 2, (size - padding) * 2, HALF_PI, 2 * HALF_PI);
+                p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._void_outer_tl) {
-                arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * HALF_PI, 3 * HALF_PI);
+                p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
     
             if (this._void_inner_tr) {
-                arc(size, 0, padding * 2, padding * 2, HALF_PI, 2 * HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._void_inner_br) {
-                arc(size, size, padding * 2, padding * 2, 2 * HALF_PI, 3 * HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
             if (this._void_inner_bl) {
-                arc(0, size, padding * 2, padding * 2, 3 * HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._void_inner_tl) {
-                arc(0, 0, padding * 2, padding * 2, 0, HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
         }
-        pop();
+        p5.pop();
     }
 }
+
+export default Border;
