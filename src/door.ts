@@ -1,4 +1,4 @@
-import { Vector } from "p5";
+import P5, { Vector } from "p5";
 import { SIZE } from ".";
 import Entity from "./entity";
 
@@ -18,13 +18,13 @@ class Door extends Entity{
         }
     }
 
-    draw(){
-        this.p5.push();
-        this.p5.translate(this.pos.x*SIZE, this.pos.y*SIZE);
-        this.p5.noStroke();
-        this.p5.fill("yellow");
-        this.p5.rect(0, 0, this.size, this.size/2);
-        this.p5.pop();
+    draw(p5: P5){
+        p5.push();
+        p5.translate(this.pos.x*SIZE, this.pos.y*SIZE);
+        p5.noStroke();
+        p5.fill("yellow");
+        p5.rect(0, 0, this.size, this.size/2);
+        p5.pop();
     }
 }
 

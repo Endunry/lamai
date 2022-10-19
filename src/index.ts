@@ -9,12 +9,22 @@ import Void from "./void";
 import Border from "./borders";
 import { Cookie, Power } from "./collectible";
 import Fraction from "./fraction";
-import { setP5 } from './singletons';
+import { setImages } from "./singletons";
+
+import LamaImg from './assets/lama.png';
+import BlinkyImg from './assets/Gertrud_Blinky.png';
+import ClydeImg from './assets/Gertrud_Clyde.png';
+import InkyImg from './assets/Gertrud_Inky.png';
+import PinkyImg from './assets/Gertrud_Pinky.png';
+import FrightenedImg from './assets/Gertrud_Frightened.png';
+import EatenImg from './assets/Gertrud_Eaten.png';
+
 export const SIZE = 30; // Size of a grid
 export const GRID_WIDTH = 28;
 export const GRID_HEIGHT = 35;
 export const WIDTH = GRID_WIDTH * SIZE;
 export const HEIGHT = GRID_HEIGHT * SIZE;
+
 
 export let BORDER_DRAWING = 'ORIGINAL';  // SIMPLE or ORIGINAL 
 export const DEBUG = true;
@@ -99,7 +109,6 @@ window.onload = function () {
 }
 
 const sketch = (p5: P5) => {
-    setP5(p5);
     // p5.mousePressed = (event?: MouseEvent) => {
     //     if(!event) return;
     //     let insertedItem;
@@ -161,6 +170,18 @@ const sketch = (p5: P5) => {
 
 
     p5.setup = () => {
+
+        // Load the images
+        setImages({
+            pacman: p5.loadImage(LamaImg),
+            blinky: p5.loadImage(BlinkyImg),
+            inky: p5.loadImage(InkyImg),
+            pinky: p5.loadImage(PinkyImg),
+            clyde: p5.loadImage(ClydeImg),
+            frightened: p5.loadImage(FrightenedImg),
+            eaten: p5.loadImage(EatenImg),
+        })
+
         started = false;
         let mapDataString = mapdatainit;
         let mapData = mapDataString;
@@ -210,14 +231,14 @@ const sketch = (p5: P5) => {
             HOME_TARGET && p5.ellipse(HOME_TARGET.x * SIZE, HOME_TARGET.y * SIZE, 10, 10);
         }
 
-        lama && lama.draw();
-        arrayMap && arrayMap.forEach(col => col && col.forEach(item => item && item.draw()));
-        lama && lama.listenForKeys();
+        lama && lama.draw(p5);
+        arrayMap && arrayMap.forEach(col => col && col.forEach(item => item && item.draw(p5)));
+        lama && lama.listenForKeys(p5);
         lama && p5.text(`Punkte: ${lama.points}`, textx, texty, WIDTH, SIZE + 5);
-        inky && inky.draw();
-        pinky && pinky.draw();
-        clyde && clyde.draw();
-        blinky && blinky.draw();
+        inky && inky.draw(p5);
+        pinky && pinky.draw(p5);
+        clyde && clyde.draw(p5);
+        blinky && blinky.draw(p5);
     }
 
 }

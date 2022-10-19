@@ -15,16 +15,16 @@ class Void extends Entity implements VoidInterface {
 
     }
 
-    draw() {
+    draw(p5: P5) {
         if (!DEBUG) return;
-        this.p5.push();
+        p5.push();
 
-        this.p5.translate(this.pos.x*SIZE, this.pos.y*SIZE);
-        this.p5.noStroke();
-        this.p5.fill(255, 0, 0, 64);
-        this.p5.rect(0, 0, this.size, this.size);
+        p5.translate(this.pos.x*SIZE, this.pos.y*SIZE);
+        p5.noStroke();
+        p5.fill(255, 0, 0, 64);
+        p5.rect(0, 0, this.size, this.size);
 
-        this.p5.pop();
+        p5.pop();
     }
 }
 

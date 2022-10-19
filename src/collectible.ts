@@ -1,4 +1,4 @@
-import p5, { Color, Vector } from "p5";
+import P5, { Color, Vector } from "p5";
 import { SIZE, LAMA_SMOOTHNESS, arrayMap, lama, pinky, inky, clyde, blinky } from ".";
 import Entity, { EntityInterface } from "./entity";
 import Lama, { LamaInterface } from "./lama";
@@ -20,12 +20,12 @@ class Collectible extends Entity implements CollectibleInterface {
         this.color = color;
     }
 
-    draw(){
-        this.p5.push();
-        this.p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
-        this.p5.fill(this.color);
-        this.p5.ellipse(SIZE/2, SIZE/2 , this.width, this.height);
-        this.p5.pop();
+    draw(p5: P5){
+        p5.push();
+        p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
+        p5.fill(this.color);
+        p5.ellipse(SIZE/2, SIZE/2 , this.width, this.height);
+        p5.pop();
     }
 
 

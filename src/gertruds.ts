@@ -5,9 +5,12 @@ SCATTER/CHASE: 7" 20" 7" 20" 5" 20" 5" -
 
 */
 
-import p5, { Vector } from "p5";
+import P5, { Vector } from "p5";
+import HALF_PI from "p5";
 import { SIZE, GERTRUD_SMOOTHNESS, DEBUG, GRID_WIDTH, GRID_HEIGHT, HOME_TARGET, lama, blinky } from ".";
 import Moveable, { MoveableInterface } from "./moveable";
+import { getImages } from './singletons';
+import { Image } from 'p5';
 
 let FLEESTART: Date;
 
@@ -15,13 +18,16 @@ export type GertrudState = 'idle' | 'escaping' | 'scatter' | 'chase' | 'frighten
 
 interface GertrudInterface extends MoveableInterface {
     state: GertrudState;
-    target: p5.Vector;
-    scatterTarget: p5.Vector;
+    target: Vector;
+    scatterTarget: Vector;
     firstState: GertrudState;
-    targetColor: p5.Color;
+    targetColor: string;
     queuedState: GertrudState;
     size: number;
-    chaseTarget: () => p5.Vector;
+    fleeImg: Image;
+    eatenImg: Image;
+    image: Image;
+    chaseTarget: () => Vector;
     calculateTarget: () => Vector;
     queueState: (state: GertrudState) => void;
     scatter: () => void;
@@ -35,19 +41,23 @@ interface GertrudInterface extends MoveableInterface {
 
 class Gertrud extends Moveable implements GertrudInterface {
     state: GertrudState;
-    target: p5.Vector;
-    scatterTarget: p5.Vector;
+    target: Vector;
+    scatterTarget: Vector;
     firstState: GertrudState;
-    targetColor: p5.Color;
+    targetColor: string;
     queuedState: GertrudState;
+    fleeImg: Image;
+    eatenImg: Image;
+    image: Image;
     size: number;
-        constructor(x:number, y:number, type: any) {
+        constructor(x:number, y:number, type: "blinky" | "pinky" | "inky" | "clyde") {
             super(x, y);
             this.size = SIZE;
-            // this.fleeImg = loadImage(`./src/assets/Gertrud5.png`);
-            // this.eatenImg = loadImage(`./src/assets/Gertrud6.png`);
+            this.fleeImg = getImages().frightened;
+            this.eatenImg = getImages().eaten;
             this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
             this.target = null; // the target tile (determined by the state and type of ghost)
+            this.image = getImages()[type] || getImages().clyde;
             this.scatterTarget = null;
             this.firstState = 'escaping';
             this.smoothness = GERTRUD_SMOOTHNESS;
@@ -171,41 +181,41 @@ class Gertrud extends Moveable implements GertrudInterface {
              }
          }
 
-    draw() {
+    draw(p5: P5) {
 
         
-            this.p5.push();
+            p5.push();
             if (DEBUG) {
-                this.p5.fill(this.targetColor);
-                this.p5.circle(this.pos.x * SIZE, this.pos.y * SIZE, SIZE / 2);
-                this.p5.fill(this.targetColor);
-                this.p5.circle(this.logicalPosition.x * SIZE, this.logicalPosition.y * SIZE, SIZE / 2);
+                p5.fill(this.targetColor);
+                p5.circle(this.pos.x * SIZE, this.pos.y * SIZE, SIZE / 2);
+                p5.fill(this.targetColor);
+                p5.circle(this.logicalPosition.x * SIZE, this.logicalPosition.y * SIZE, SIZE / 2);
             }
-            this.p5.translate(this.pos.x * SIZE + this.size / 2, this.pos.y * SIZE + this.size / 2);
-            this.p5.noStroke();
+            p5.translate(this.pos.x * SIZE + this.size / 2, this.pos.y * SIZE + this.size / 2);
+            p5.noStroke();
             // flip the lama if he is moving left
             if (this.dir && (this.dir.x < 0 || this.flipped)) {
                 if (this.dir.x > 0) {
                     this.flipped = false;
                 } else {
-                    this.p5.scale(-1, 1);
+                    p5.scale(-1, 1);
                     this.flipped = true;
                 }
             }
             if (this.state == "frightened") {
-                // this.p5.image(this.fleeImg, 0, 0, this.size * 1.6, this.size * 1.6);
+                p5.image(this.fleeImg, 0, 0, this.size * 1.6, this.size * 1.6);
             } else if (this.state == "eaten") {
-                // this.p5.image(this.eatenImg, 0, 0, this.size * 1.6, this.size * 1.6);
+                p5.image(this.eatenImg, 0, 0, this.size * 1.6, this.size * 1.6);
             }else{
-                // this.p5.image(this.img, 0, 0, this.size * 1.9, this.size * 1.9);
+                p5.image(this.image, 0, 0, this.size * 1.9, this.size * 1.9);
             }
             // include img
             // p5.ellipse(0, 0, this.size);
 
-            this.p5.pop();
+            p5.pop();
             if (DEBUG && this.target && this.targetColor) {
-                this.p5.fill(this.targetColor);
-                this.p5.ellipse(this.target.x * SIZE, this.target.y * SIZE, 10, 10);
+                p5.fill(this.targetColor);
+                p5.ellipse(this.target.x * SIZE, this.target.y * SIZE, 10, 10);
             }
         
     }
@@ -250,13 +260,13 @@ class Gertrud extends Moveable implements GertrudInterface {
 
 export class Pinky extends Gertrud {
     constructor(x: number, y:number) {
-        super(x, y, "2");
+        super(x, y, "pinky");
         this.scatterTarget = new Vector(3, 0)
-        this.targetColor = this.p5.color("pink");
+        this.targetColor = "pink";
     }
 
     chaseTarget(){
-        if(lama.dir.heading() == -this.p5.HALF_PI){
+        if(lama.dir.heading() == -HALF_PI){
             return new Vector(lama.logicalPosition.x - 4, lama.logicalPosition.y - 4);
         } else{
             return lama.logicalPosition.copy().add(lama.dir.copy().mult(4));
@@ -266,9 +276,9 @@ export class Pinky extends Gertrud {
 
 export class Blinky extends Gertrud {
     constructor(x:number, y:number) {
-        super(x, y, "3");
+        super(x, y, "blinky");
         this.scatterTarget = new Vector(GRID_WIDTH - 2, 0);
-        this.targetColor = this.p5.color("red");
+        this.targetColor = "red";
     }
 
     chaseTarget(){
@@ -278,9 +288,9 @@ export class Blinky extends Gertrud {
 
 export class Inky extends Gertrud {
     constructor(x: number, y: number) {
-        super(x, y, "4");
+        super(x, y, "inky");
         this.scatterTarget = new Vector(GRID_WIDTH, GRID_HEIGHT - 1);
-        this.targetColor = this.p5.color("cyan");
+        this.targetColor = "cyan";
     }
 
     chaseTarget(){
@@ -290,9 +300,9 @@ export class Inky extends Gertrud {
 
 export class Clyde extends Gertrud {
     constructor(x:number, y:number) {
-        super(x, y, "1");
+        super(x, y, "clyde");
         this.scatterTarget = new Vector(0, GRID_HEIGHT - 1);
-        this.targetColor = this.p5.color("orange");
+        this.targetColor = "orange";
     }
 
     chaseTarget(){

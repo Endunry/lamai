@@ -1,5 +1,6 @@
 
-import { Vector } from 'p5';
+import P5, { Vector } from 'p5';
+import HALF_PI from 'p5';
 import { SIZE, BORDER_DRAWING, DEBUG } from '.';
 import Entity, { EntityInterface } from './entity';
 
@@ -194,19 +195,19 @@ class Border extends Entity implements BorderInterface {
         }
     }
 
-    draw() {
+    draw(p5: P5) {
 
-        this.p5.push();
+        p5.push();
 
-        this.p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
+        p5.translate(this.pos.x * SIZE, this.pos.y * SIZE);
         if (DEBUG) {
-            this.p5.noStroke();
-            this.p5.fill(64, 64, 255, 64);
-            this.p5.rect(0, 0, this.size, this.size);
+            p5.noStroke();
+            p5.fill(64, 64, 255, 64);
+            p5.rect(0, 0, this.size, this.size);
         }
-        this.p5.noFill();
-        this.p5.strokeWeight(4);
-        this.p5.stroke(64, 64, 255);
+        p5.noFill();
+        p5.strokeWeight(4);
+        p5.stroke(64, 64, 255);
 
         let size = this.size;
 
@@ -214,158 +215,158 @@ class Border extends Entity implements BorderInterface {
             let padding = size / 3;
 
             if (this._top) {
-                this.p5.line(0, padding, size, padding);
+                p5.line(0, padding, size, padding);
             }
             if (this._bottom) {
-                this.p5.line(0, size - padding, size, size - padding);
+                p5.line(0, size - padding, size, size - padding);
             }
             if (this._right) {
-                this.p5.line(size - padding, 0, size - padding, size);
+                p5.line(size - padding, 0, size - padding, size);
             }
             if (this._left) {
-                this.p5.line(padding, 0, padding, size);
+                p5.line(padding, 0, padding, size);
             }
 
             if (this._horizontal_left) {
-                this.p5.line(0, padding, size / 2, padding);
-                this.p5.line(0, size - padding, size / 2, size - padding);
+                p5.line(0, padding, size / 2, padding);
+                p5.line(0, size - padding, size / 2, size - padding);
                 if (!this._horizontal_right) {
-                    this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 3 * this.p5.HALF_PI, this.p5.HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 3 * p5.HALF_PI, p5.HALF_PI)
                 }
             }
             if (this._horizontal_right) {
-                this.p5.line(size / 2, padding, size, padding);
-                this.p5.line(size / 2, size - padding, size, size - padding);
+                p5.line(size / 2, padding, size, padding);
+                p5.line(size / 2, size - padding, size, size - padding);
                 if (!this._horizontal_left) {
-                    this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, this.p5.HALF_PI, 3 * this.p5.HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, p5.HALF_PI, 3 * p5.HALF_PI)
                 }
             }
             if (this._vertical_top) {
-                this.p5.line(size - padding, 0, size - padding, size / 2);
-                this.p5.line(padding, 0, padding, size / 2);
+                p5.line(size - padding, 0, size - padding, size / 2);
+                p5.line(padding, 0, padding, size / 2);
                 if (!this._vertical_bottom) {
-                    this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, 2 * this.p5.HALF_PI)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, 2 * p5.HALF_PI)
                 }
             }
             if (this._vertical_bottom) {
-                this.p5.line(size - padding, size / 2, size - padding, size);
-                this.p5.line(padding, size / 2, padding, size);
+                p5.line(size - padding, size / 2, size - padding, size);
+                p5.line(padding, size / 2, padding, size);
                 if (!this._vertical_top) {
-                    this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 2 * this.p5.HALF_PI, 0)
+                    p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 2 * p5.HALF_PI, 0)
                 }
             }
 
-            this.p5.noFill();
+            p5.noFill();
 
             if (this._outer_tr) {
-                this.p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * this.p5.HALF_PI, 0);
+                p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._outer_br) {
-                this.p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, this.p5.HALF_PI);
+                p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, p5.HALF_PI);
             }
             if (this._outer_bl) {
-                this.p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, this.p5.HALF_PI, 2 * this.p5.HALF_PI);
+                p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._outer_tl) {
-                this.p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * this.p5.HALF_PI, 3 * this.p5.HALF_PI);
+                p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
 
 
             if (this._inner_tr) {
-                this.p5.arc(size, 0, padding * 2, padding * 2, this.p5.HALF_PI, 2 * this.p5.HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._inner_br) {
-                this.p5.arc(size, size, padding * 2, padding * 2, 2 * this.p5.HALF_PI, 3 * this.p5.HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
             if (this._inner_bl) {
-                this.p5.arc(0, size, padding * 2, padding * 2, 3 * this.p5.HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._inner_tl) {
-                this.p5.arc(0, 0, padding * 2, padding * 2, 0, this.p5.HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
 
             if (this._single) {
-                this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, this.p5.TWO_PI)
+                p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, p5.TWO_PI)
             }
         } else if (BORDER_DRAWING == 'ORIGINAL') {
             let padding = size / 2;
     
             if (this._horizontal_left) {
-                this.p5.line(0, padding, size / 2, padding);
+                p5.line(0, padding, size / 2, padding);
             }
             if (this._horizontal_right) {
-                this.p5.line(size / 2, padding, size, padding);
+                p5.line(size / 2, padding, size, padding);
             }
             if (this._vertical_top) {
-                this.p5.line(size - padding, 0, size - padding, size / 2);
+                p5.line(size - padding, 0, size - padding, size / 2);
             }
             if (this._vertical_bottom) {
-                this.p5.line(size - padding, size / 2, size - padding, size);
+                p5.line(size - padding, size / 2, size - padding, size);
             }
     
             if (this._tr) {
-                this.p5.arc(0, size, padding * 2, padding * 2, 3 * this.p5.HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._br) {
-                this.p5.arc(0, 0, padding * 2, padding * 2, 0, this.p5.HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
             if (this._bl) {
-                this.p5.arc(size, 0, padding * 2, padding * 2, this.p5.HALF_PI, 2 * this.p5.HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._tl) {
-                this.p5.arc(size, size, padding * 2, padding * 2, 2 * this.p5.HALF_PI, 3 * this.p5.HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
     
     
             padding = this.size / 3;
     
             if (this._single) {
-                this.p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, this.p5.TWO_PI);
+                p5.arc(size / 2, size / 2, size - padding * 2, size - padding * 2, 0, p5.TWO_PI);
             }
     
     
             padding = 2;
     
             if (this._void_top || this._horizontal_top) {
-                this.p5.line(0, padding, size, padding);
+                p5.line(0, padding, size, padding);
             }
             if (this._void_bottom || this._horizontal_bottom) {
-                this.p5.line(0, size - padding, size, size - padding);
+                p5.line(0, size - padding, size, size - padding);
             }
             if (this._void_right || this._vertical_right) {
-                this.p5.line(size - padding, 0, size - padding, size);
+                p5.line(size - padding, 0, size - padding, size);
             }
             if (this._void_left || this._vertical_left) {
-                this.p5.line(padding, 0, padding, size);
+                p5.line(padding, 0, padding, size);
             }
     
             if (this._void_outer_tr) {
-                this.p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * this.p5.HALF_PI, 0);
+                p5.arc(0, size, (size - padding) * 2, (size - padding) * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._void_outer_br) {
-                this.p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, this.p5.HALF_PI);
+                p5.arc(0, 0, (size - padding) * 2, (size - padding) * 2, 0, p5.HALF_PI);
             }
             if (this._void_outer_bl) {
-                this.p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, this.p5.HALF_PI, 2 * this.p5.HALF_PI);
+                p5.arc(size, 0, (size - padding) * 2, (size - padding) * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._void_outer_tl) {
-                this.p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * this.p5.HALF_PI, 3 * this.p5.HALF_PI);
+                p5.arc(size, size, (size - padding) * 2, (size - padding) * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
     
             if (this._void_inner_tr) {
-                this.p5.arc(size, 0, padding * 2, padding * 2, this.p5.HALF_PI, 2 * this.p5.HALF_PI);
+                p5.arc(size, 0, padding * 2, padding * 2, p5.HALF_PI, 2 * p5.HALF_PI);
             }
             if (this._void_inner_br) {
-                this.p5.arc(size, size, padding * 2, padding * 2, 2 * this.p5.HALF_PI, 3 * this.p5.HALF_PI);
+                p5.arc(size, size, padding * 2, padding * 2, 2 * p5.HALF_PI, 3 * p5.HALF_PI);
             }
             if (this._void_inner_bl) {
-                this.p5.arc(0, size, padding * 2, padding * 2, 3 * this.p5.HALF_PI, 0);
+                p5.arc(0, size, padding * 2, padding * 2, 3 * p5.HALF_PI, 0);
             }
             if (this._void_inner_tl) {
-                this.p5.arc(0, 0, padding * 2, padding * 2, 0, this.p5.HALF_PI);
+                p5.arc(0, 0, padding * 2, padding * 2, 0, p5.HALF_PI);
             }
         }
-        this.p5.pop();
+        p5.pop();
     }
 }
 
