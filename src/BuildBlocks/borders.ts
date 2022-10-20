@@ -5,6 +5,7 @@ import Entity, { EntityInterface } from '../Entities/entity';
 import { config, globals } from '../utils/singletons';
 
 
+type check_type = 'void' | 'empty' | 'empty_or_void';
 
 interface BorderInterface extends EntityInterface{
     size: number;
@@ -48,7 +49,7 @@ interface BorderInterface extends EntityInterface{
     _void_inner_br: boolean;
     _void_inner_bl: boolean;
     _void_inner_tl: boolean;
-    isSat(border: Array<number>, no_border: Array<number>, _void: boolean | undefined) : boolean;
+    isSat(border: Array<number>, no_border: Array<number>, check: check_type) : boolean;
     setNeighbors(neighbors: Array<number>) : void;
 }
 
@@ -99,25 +100,25 @@ class Border extends Entity implements BorderInterface {
         this.size = config.dimensions.gridSize;
     }
 
-    isSat(border: Array<number>, no_border: Array<number>, _void? : boolean) {
+    isSat(border: Array<number>, no_border: Array<number>, check: check_type) {
         for (let i of border) {
             if (this._neighbors[i] != 1) {
                 return false;
             }
         }
-        if (_void == undefined) {
+        if (check === 'empty_or_void') {
             for (let i of  no_border) {
                 if (this._neighbors[i] == 1) {
                     return false;
                 }
             }
-        } else if (_void) {
+        } else if (check === 'void') {
             for (let i of  no_border) {
                 if (this._neighbors[i] != -1) {
                     return false;
                 }
             }
-        } else {
+        } else if (check === 'empty') {
             for (let i of  no_border) {
                 if (this._neighbors[i] != 0) {
                     return false;
@@ -134,64 +135,64 @@ class Border extends Entity implements BorderInterface {
         this._neighbors = neighbors;
 
         if (globals.borderDrawing == 'simple') {
-            this._top = this.isSat([3, 1], [0])
-            this._bottom = this.isSat([3, 1], [2])
-            this._right = this.isSat([0, 2], [1])
-            this._left = this.isSat([0, 2], [3])
+            this._top = this.isSat([3, 1], [0], 'empty_or_void')
+            this._bottom = this.isSat([3, 1], [2], 'empty_or_void')
+            this._right = this.isSat([0, 2], [1], 'empty_or_void')
+            this._left = this.isSat([0, 2], [3], 'empty_or_void')
 
-            this._outer_tr = this.isSat([2, 3],[0, 1])
-            this._outer_br = this.isSat([0, 3],[1, 2])
-            this._outer_bl = this.isSat([0, 1],[2, 3])
-            this._outer_tl = this.isSat([1, 2],[3, 0])
+            this._outer_tr = this.isSat([2, 3],[0, 1], 'empty_or_void')
+            this._outer_br = this.isSat([0, 3],[1, 2], 'empty_or_void')
+            this._outer_bl = this.isSat([0, 1],[2, 3], 'empty_or_void')
+            this._outer_tl = this.isSat([1, 2],[3, 0], 'empty_or_void')
 
-            this._inner_tr = this.isSat([0, 1],[4])
-            this._inner_br = this.isSat([1, 2],[5])
-            this._inner_bl = this.isSat([3, 2],[6])
-            this._inner_tl = this.isSat([0, 3],[7])
+            this._inner_tr = this.isSat([0, 1],[4], 'empty_or_void')
+            this._inner_br = this.isSat([1, 2],[5], 'empty_or_void')
+            this._inner_bl = this.isSat([3, 2],[6], 'empty_or_void')
+            this._inner_tl = this.isSat([0, 3],[7], 'empty_or_void')
 
-            this._horizontal_left = this.isSat([3], [0, 1, 2]) || (this.isSat([1], [0, 2]) && this.isSat([], [3], true));
-            this._horizontal_right = this.isSat([1], [0, 3, 2]) || (this.isSat([3], [0, 2]) && this.isSat([], [1], true));
+            this._horizontal_left = this.isSat([3], [0, 1, 2], 'empty_or_void') || (this.isSat([1], [0, 2], 'empty_or_void') && this.isSat([], [3], 'void'));
+            this._horizontal_right = this.isSat([1], [0, 3, 2], 'empty_or_void') || (this.isSat([3], [0, 2], 'empty_or_void') && this.isSat([], [1], 'void'));
 
-            this._vertical_top = this.isSat([0], [1, 2, 3]) || (this.isSat([2], [1, 3]) && this.isSat([], [0], true));
-            this._vertical_bottom = this.isSat([2], [1, 0, 3]) || (this.isSat([0], [1, 3]) && this.isSat([], [2], true));
+            this._vertical_top = this.isSat([0], [1, 2, 3], 'empty_or_void') || (this.isSat([2], [1, 3], 'empty_or_void') && this.isSat([], [0], 'void'));
+            this._vertical_bottom = this.isSat([2], [1, 0, 3], 'empty_or_void') || (this.isSat([0], [1, 3], 'empty_or_void') && this.isSat([], [2], 'void'));
 
-            this._single = this.isSat([], [0, 1, 2, 3])
+            this._single = this.isSat([], [0, 1, 2, 3], 'empty_or_void')
         } else if (globals.borderDrawing == 'original') {
-            this._tr = this.isSat([3, 2],[6], false) || this.isSat([2, 3],[0, 1], false);
-            this._br = this.isSat([0, 3],[7], false) || this.isSat([0, 3],[1, 2], false);
-            this._bl = this.isSat([0, 1],[4], false) || this.isSat([0, 1],[2, 3], false);
-            this._tl = this.isSat([1, 2],[5], false) || this.isSat([1, 2],[3, 0], false);
+            this._tr = this.isSat([3, 2],[6], 'empty') || this.isSat([2, 3],[0, 1], 'empty');
+            this._br = this.isSat([0, 3],[7], 'empty') || this.isSat([0, 3],[1, 2], 'empty');
+            this._bl = this.isSat([0, 1],[4], 'empty') || this.isSat([0, 1],[2, 3], 'empty');
+            this._tl = this.isSat([1, 2],[5], 'empty') || this.isSat([1, 2],[3, 0], 'empty');
     
-            this._horizontal = this.isSat([1], [0, 3, 2]) || this.isSat([3], [0, 1, 2]) || this.isSat([3, 1], [0], false) || this.isSat([3, 1], [2], false);
-            this._horizontal_top = this._horizontal && this.isSat([], [0], true);
-            this._horizontal_bottom = this._horizontal && this.isSat([], [2], true);
+            this._horizontal = this.isSat([1], [0, 3, 2], 'empty_or_void') || this.isSat([3], [0, 1, 2], 'empty_or_void') || this.isSat([3, 1], [0], 'empty') || this.isSat([3, 1], [2], 'empty');
+            this._horizontal_top = this._horizontal && this.isSat([], [0], 'void');
+            this._horizontal_bottom = this._horizontal && this.isSat([], [2], 'void');
             if (this._horizontal_top && this._horizontal_bottom) this._horizontal = false;
-            this._horizontal_left = this._horizontal && (this.isSat([3], []) || this.isSat([], [3], true));
-            this._horizontal_right = this._horizontal && (this.isSat([1], []) || this.isSat([], [1], true));
+            this._horizontal_left = this._horizontal && (this.isSat([3], [], 'empty_or_void') || this.isSat([], [3], 'void'));
+            this._horizontal_right = this._horizontal && (this.isSat([1], [], 'empty_or_void') || this.isSat([], [1], 'void'));
     
-            this._vertical = this.isSat([0], [1, 2, 3]) || this.isSat([2], [1, 0, 3]) || this.isSat([0, 2], [1], false) || this.isSat([0, 2], [3], false);
-            this._vertical_right = this._vertical && this.isSat([], [1], true);
-            this._vertical_left = this._vertical && this.isSat([], [3], true);
+            this._vertical = this.isSat([0], [1, 2, 3], 'empty_or_void') || this.isSat([2], [1, 0, 3], 'empty_or_void') || this.isSat([0, 2], [1], 'empty') || this.isSat([0, 2], [3], 'empty');
+            this._vertical_right = this._vertical && this.isSat([], [1], 'void');
+            this._vertical_left = this._vertical && this.isSat([], [3], 'void');
             if (this._vertical_right && this._vertical_left) this._vertical = false;
-            this._vertical_top = this._vertical && (this.isSat([0], []) || this.isSat([], [0], true));
-            this._vertical_bottom = this._vertical && (this.isSat([2], []) || this.isSat([], [2], true));
+            this._vertical_top = this._vertical && (this.isSat([0], [], 'empty_or_void') || this.isSat([], [0], 'void'));
+            this._vertical_bottom = this._vertical && (this.isSat([2], [], 'empty_or_void') || this.isSat([], [2], 'void'));
     
-            this._single = this.isSat([], [0, 1, 2, 3]);
+            this._single = this.isSat([], [0, 1, 2, 3], 'empty_or_void');
     
-            this._void_top = this.isSat([3, 1], [0], true);
-            this._void_bottom = this.isSat([3, 1], [2], true);
-            this._void_right = this.isSat([0, 2], [1], true);
-            this._void_left = this.isSat([0, 2], [3], true);
+            this._void_top = this.isSat([3, 1], [0], 'void');
+            this._void_bottom = this.isSat([3, 1], [2], 'void');
+            this._void_right = this.isSat([0, 2], [1], 'void');
+            this._void_left = this.isSat([0, 2], [3], 'void');
     
-            this._void_outer_tr = this.isSat([2, 3],[0, 1], true);
-            this._void_outer_br = this.isSat([0, 3],[1, 2], true);
-            this._void_outer_bl = this.isSat([0, 1],[2, 3], true);
-            this._void_outer_tl = this.isSat([1, 2],[3, 0], true);
+            this._void_outer_tr = this.isSat([2, 3],[0, 1], 'void');
+            this._void_outer_br = this.isSat([0, 3],[1, 2], 'void');
+            this._void_outer_bl = this.isSat([0, 1],[2, 3], 'void');
+            this._void_outer_tl = this.isSat([1, 2],[3, 0], 'void');
     
-            this._void_inner_tr = this.isSat([0, 1],[4], true);
-            this._void_inner_br = this.isSat([1, 2],[5], true);
-            this._void_inner_bl = this.isSat([3, 2],[6], true);
-            this._void_inner_tl = this.isSat([0, 3],[7], true);
+            this._void_inner_tr = this.isSat([0, 1],[4], 'void');
+            this._void_inner_br = this.isSat([1, 2],[5], 'void');
+            this._void_inner_bl = this.isSat([3, 2],[6], 'void');
+            this._void_inner_tl = this.isSat([0, 3],[7], 'void');
         }
     }
     
