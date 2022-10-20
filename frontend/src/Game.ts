@@ -21,7 +21,7 @@ interface GameInterface {
     startTime: Date;
     started: boolean;
     init(): void;
-    loadMap(): void;
+    loadMap(id: string): void;
     determineBorderTypes(): void;
     start(): void;
     restart(): void;
@@ -65,14 +65,36 @@ class Game implements GameInterface {
         this.lama && this.lama.drawDebug(p5);
     }
 
-    loadMap(): void {
-        let mapData = mapdatainit;
-        mapData.voids.forEach((_void) => this.map[_void.x][_void.y] = new Void(new Vector(_void.x, _void.y)));
-        mapData.barriers.forEach((barrier) => this.map[barrier.x][barrier.y] = new Border(new Vector(barrier.x, barrier.y)));
-        mapData.cookies.forEach((cookie) => this.map[cookie.x][cookie.y] = new Cookie(cookie.x, cookie.y));
-        mapData.powerups.forEach((powerup) => this.map[powerup.x][powerup.y] = new Power(powerup.x, powerup.y));
-        mapData.doors.forEach((door) => this.map[Math.floor(door.x)][Math.floor(door.y)] = new Door(door.x, door.y));
-        // let spawner = mapData.spawner;
+    loadMap(id: string = "635143ded482a24c597f959d"): void {
+        this.map = new Array(config.dimensions.gridWidth).fill(0).map(() => new Array(config.dimensions.gridHeight));
+        // let mapData = mapdatainit;
+        let request = new XMLHttpRequest();
+        request.open('GET', `http://localhost:8080/getMap/${id}`, false);
+        request.send(null);
+        let mapData = JSON.parse(request.responseText).data;
+        for (let x = 0; x < config.dimensions.gridWidth; x++) {
+            for (let y = 0; y < config.dimensions.gridHeight; y++) {
+                switch (mapData.statics[x][y]) {
+                    case -1:
+                        this.map[x][y] = new Void(new Vector(x, y));
+                        break;
+                    case 1:
+                        this.map[x][y] = new Border(new Vector(x, y));
+                        break;
+                    case 2:
+                        this.map[x][y] = new Cookie(x, y);
+                        break;
+                    case 3:
+                        this.map[x][y] = new Power(x, y);
+                        break;
+                    default:
+                }
+            }
+        }
+        mapData.door.forEach((door: { x: number; y: number; }) => {
+            this.map[Math.floor(door.x)][Math.floor(door.y)] = new Door(door.x, door.y);
+        });
+
         this.lama = new Lama(new Vector(mapData.lama.x, mapData.lama.y), config.dimensions.gridSize);
         this.pinky = new Pinky(mapData.pinky.x, mapData.pinky.y,);
         this.inky = new Inky(mapData.inky.x, mapData.inky.y,);
@@ -122,7 +144,7 @@ class Game implements GameInterface {
         }
     }
 
-    
+
     map: (Entity | undefined)[][];
     blinky: Blinky;
     pinky: Blinky;
@@ -132,7 +154,7 @@ class Game implements GameInterface {
     homeTarget: Vector;
     startTime: Date;
     started: boolean;
-    
+
     // "Non Interface Functions+members"
 
     checkTimeTable(ghosts: Array<Gertrud>) {

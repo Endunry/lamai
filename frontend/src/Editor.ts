@@ -31,7 +31,26 @@ class MapEditor implements MapEditorInterface {
         this.currentSelection = null;
     }
 
+   
+
     saveMap() {
+
+        // Open prompt to enter map name
+        let mapName = prompt('Enter map name');
+        if (!mapName) return;
+        // Get all the names with a http request
+        let request = new XMLHttpRequest();
+        request.open('GET', 'http://localhost:8080/getSavedNames', false);
+        request.send(null);
+        let savedNames: {name: string}[] = JSON.parse(request.responseText);
+        console.log(savedNames);
+        // Check if the name is already taken
+        if (savedNames.some((name) => name.name == mapName)) {
+            alert('Map name already taken');
+            return;
+        }
+
+
         this.saveButton.setAttribute('disabled', 'disabled');
         this.toolbar.classList.add("disabled");
         this.editButton.removeAttribute('disabled');
@@ -39,62 +58,56 @@ class MapEditor implements MapEditorInterface {
         let newCurrSelection = document.createElement('span');
         newCurrSelection.id = 'currentSelection';
         document.getElementById('currentSelection').replaceWith(newCurrSelection);
-        
-        let voids: printType = [];
-        let barriers: printType = [];
-        let cookies: printType = [];
-        let powerups: printType = [];
-        let doors: printType = [];
-        game.map.forEach((col) => {
-            col.forEach((entity) => {
-
-                if (entity instanceof Void) {
-                    voids.push({
-                        x: entity.pos.x,
-                        y: entity.pos.y
-                    });
-                } else if (entity instanceof Border) {
-                    barriers.push({
-                        x: entity.pos.x,
-                        y: entity.pos.y
-                    });
-                } else if (entity instanceof Cookie) {
-                    cookies.push({
-                        x: entity.pos.x,
-                        y: entity.pos.y
-                    });
-                } else if (entity instanceof Power) {
-                    powerups.push({
-                        x: entity.pos.x,
-                        y: entity.pos.y
-                    });
-                } else if (entity instanceof Door) {
-                    doors.push({
-                        x: entity.pos.x,
-                        y: entity.pos.y
-                    });
+        let door: printType = [];
+        let statics: number[][] = new Array(config.dimensions.gridWidth).fill(0).map(()=> new Array(config.dimensions.gridHeight)); // Void = 0, Border = 1, Cookie = 2, Power = 3, Door = 4
+        for(let i = 0; i < config.dimensions.gridWidth; i++) {
+            for(let j = 0; j < config.dimensions.gridHeight; j++) {
+                let entity = game.map[i][j];
+                if (!entity) continue;
+                switch(entity.constructor.name) {
+                    case 'Void':
+                        statics[i][j] = -1;
+                        break;
+                    case 'Border':
+                        statics[i][j] = 1; 1
+                        break;
+                    case 'Cookie':
+                        statics[i][j] = 2;
+                        break;
+                    case 'Power':
+                        statics[i][j] = 3;
+                        break;
+                    case 'Door':
+                        door.push({x: (entity as Door).pos.x, y: (entity as Door).pos.y});
+                        break;
+                    default:
+                        statics[i][j] = 0;
                 }
-            });
-        });
+            }
+        }
+        
 
         let mapData = {
-            voids,
-            barriers,
-            cookies,
-            powerups,
+            statics,
             lama: game.lama,
             pinky: game.pinky,
             inky: game.inky,
+            door,
             clyde: game.clyde,
             blinky: game.blinky,
             home: {
                 x: game.homeTarget.x,
                 y: game.homeTarget.y
-            },
-            doors
+            }
         }
-        let mapDataString = JSON.stringify(mapData);
-        document.getElementById("io").innerHTML = mapDataString;
+        let request2 = new XMLHttpRequest();
+        request2.open('POST', 'http://localhost:8080/saveMap', false);
+        request2.setRequestHeader('Content-Type', 'application/json');
+        request2.send(JSON.stringify({
+            name: mapName,
+            data: mapData
+        }));
+        alert('Map saved');
 
     }
 
