@@ -8,7 +8,7 @@ import Lama from "./Entities/lama";
 import game from "./Game";
 import { config } from "./utils/singletons";
 
-type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
+export type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
 type printType = { x: any, y: any }[];
 
 interface MapEditorInterface {
@@ -25,9 +25,9 @@ class MapEditor implements MapEditorInterface {
         this.editButton = document.getElementById(editButtonId) as HTMLButtonElement;
         this.saveButton = document.getElementById(saveButtonId) as HTMLButtonElement;
         this.toolbar = document.getElementById(toolbarId) as HTMLDivElement;
-        this.editButton.addEventListener('click', this.edit);
-        this.saveButton.addEventListener('click', this.saveMap);
-        this.toolbar.addEventListener('click', this.selectTool);
+        this.editButton.addEventListener('click', ()=>this.edit());
+        this.saveButton.addEventListener('click', ()=>this.saveMap());
+        this.toolbar.addEventListener('click', e=>this.selectTool(e as ClickEvent));
         this.currentSelection = null;
     }
 
@@ -115,7 +115,7 @@ class MapEditor implements MapEditorInterface {
     mouseListener(event?: ClickEvent): void {
         if (!event) return;
         let insertedItem;
-
+        console.log(this.currentSelection);
         // Determine the x and y coords
         let rect = document.querySelector('#app canvas').getBoundingClientRect();
         let x = Math.floor((event.clientX - rect.left) / config.dimensions.gridSize);

@@ -17,7 +17,7 @@ import InkyImg from './assets/Gertrud_Inky.png';
 import PinkyImg from './assets/Gertrud_Pinky.png';
 import FrightenedImg from './assets/Gertrud_Frightened.png';
 import EatenImg from './assets/Gertrud_Eaten.png';
-import mapEditor from './Editor';
+import mapEditor, { ClickEvent } from './Editor';
 
 export const WIDTH = config.dimensions.gridWidth * config.dimensions.gridSize;
 export const HEIGHT = config.dimensions.gridHeight * config.dimensions.gridSize;
@@ -71,9 +71,9 @@ window.addEventListener("keydown", function (e) {
 
 const sketch = (p5: P5) => {
 
-    p5.mousePressed = mapEditor.mouseListener;
+    p5.mousePressed = e=> mapEditor.mouseListener(e as ClickEvent);
 
-    p5.mouseDragged = mapEditor.mouseListener;
+    p5.mouseDragged = e=> mapEditor.mouseListener(e as ClickEvent);
 
     p5.setup = () => {
         p5.frameRate(60);
