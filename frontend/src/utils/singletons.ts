@@ -1,5 +1,4 @@
-import * as P5 from "p5";
-import Entity from "../Entities/entity";
+import P5 from "p5";
 
 export type imagesType = {
     pinky: null | P5.Image,
@@ -11,7 +10,6 @@ export type imagesType = {
     pacman: null | P5.Image
 }
 
-let p5SIngleton: P5 = null;
 let images: imagesType = {
     pinky: null,
     inky: null,
@@ -32,7 +30,7 @@ export function getImages(): imagesType {
 
 export const config = {
     init: {
-        debug: true,
+        debug: false,
     },
     dimensions:{
         gridSize: 30,
@@ -63,3 +61,4 @@ export let globals = {
     lives: config.player.lives,
     borderDrawing: 'original' as 'original' | 'simple',
 }
+

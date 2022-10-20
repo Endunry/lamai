@@ -1,12 +1,6 @@
 import game from "./Game";
 import { Vector } from "p5";
 import P5 from "p5";
-import { Blinky, Clyde, Inky, Pinky } from "./Entities/gertruds";
-import Lama, { LamaInterface } from "./Entities/lama";
-import Door from "./BuildBlocks/door";
-import Void from "./BuildBlocks/void";
-import Border from "./BuildBlocks/borders";
-import { Cookie, Power } from "./Entities/collectible";
 import Fraction from "./utils/fraction";
 import { config, globals, setImages } from "./utils/singletons";
 
@@ -26,30 +20,13 @@ export let CANVAS_OBJ: P5.Renderer | null;
 
 export let HOME_TARGET: Vector = null;
 const BACKGROUND = 'black';
-// "How many grids will it move per cycle"
-
-// Somehow let the movement be 11 Blocks per second for the normal gameplay
-
-/* Table for Speed values of pacman and the ghosts
-draw(p5)
-Pacman:
-    Norm: 80%
-    Fright: 90%
-Ghosts:
-    Norm: 75%
-    Fright: 50%
-*/
 
 const LAMA_SPEED = 10 // How many grids / second
-const GERTRUD_SPEED = 8;
+const GERTRUD_SPEED = 10;
 
 export const LAMA_SMOOTHNESS = new Fraction(1, LAMA_SPEED);
 console.log(LAMA_SMOOTHNESS)
 export const GERTRUD_SMOOTHNESS = new Fraction(1,  GERTRUD_SPEED);
-
-
-
-let currentSelection: string | null = null;
 
 document.getElementById("debugMode").setAttribute("checked", config.init.debug+"");
 document.getElementById("debugMode").addEventListener("change", () => {
@@ -111,7 +88,5 @@ const sketch = (p5: P5) => {
     }
 
 }
-
-
 
 new P5(sketch);
