@@ -8,6 +8,7 @@ import Void from './BuildBlocks/void';
 import Door from "./BuildBlocks/door";
 import { Cookie, Power } from "./Entities/collectible";
 import Border from "./BuildBlocks/borders";
+import { mapData } from './types/maps';
 
 
 interface GameInterface {
@@ -33,7 +34,7 @@ const PORT = 1234;
 
 class Game implements GameInterface {
     constructor() {
-        this.map = new Array(config.dimensions.gridWidth).fill(0).map(() => new Array(config.dimensions.gridHeight));
+        this.map = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight));
         this.started = false;
     }
 
@@ -49,16 +50,16 @@ class Game implements GameInterface {
     drawDebug(p5: P5): void {
         p5.stroke(255);
         p5.strokeWeight(1);
-        for (let i = 0; i < config.dimensions.gridWidth; i++) {
-            p5.line(i * config.dimensions.gridSize, 0, i * config.dimensions.gridSize, p5.height);
+        for (let i = 0; i < globals.dimensions.gridWidth; i++) {
+            p5.line(i * config.gridSize, 0, i * config.gridSize, p5.height);
         }
-        for (let i = 0; i < config.dimensions.gridHeight; i++) {
-            p5.line(0, i * config.dimensions.gridSize, p5.width, i * config.dimensions.gridSize);
+        for (let i = 0; i < globals.dimensions.gridHeight; i++) {
+            p5.line(0, i * config.gridSize, p5.width, i * config.gridSize);
         }
         // Draw fps
         p5.fill(255);
         p5.text(`FPS: ${p5.frameRate().toFixed(0)}`, 100, 10);
-        this.homeTarget && p5.ellipse(this.homeTarget.x * config.dimensions.gridSize, this.homeTarget.y * config.dimensions.gridSize, 10, 10);
+        this.homeTarget && p5.ellipse(this.homeTarget.x * config.gridSize, this.homeTarget.y * config.gridSize, 10, 10);
         this.blinky && this.blinky.drawDebug(p5);
         this.pinky && this.pinky.drawDebug(p5);
         this.inky && this.inky.drawDebug(p5);
@@ -66,19 +67,19 @@ class Game implements GameInterface {
         this.lama && this.lama.drawDebug(p5);
     }
 
-    loadMap(id: string = "635143ded482a24c597f959d"): void {
-        this.map = new Array(config.dimensions.gridWidth).fill(0).map(() => new Array(config.dimensions.gridHeight));
+    loadMap(): void {
+        this.map = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight));
         this.started = false;
         // let mapData = mapdatainit;   
         let request = new XMLHttpRequest();
-        request.open('GET', `http://localhost:${PORT}/getMap/${id}`, false);
+        request.open('GET', `http://localhost:${PORT}/getMap/${globals.mapId}`, false);
         request.send(null);
-        let mapData = JSON.parse(request.responseText).data;
-        console.log(mapData)
+        let mapData = JSON.parse(request.responseText).data as mapData;
+        console.log(mapData, globals.dimensions)
         if (mapData.statics) {
 
-            for (let x = 0; x < config.dimensions.gridWidth; x++) {
-                for (let y = 0; y < config.dimensions.gridHeight; y++) {
+            for (let x = 0; x < globals.dimensions.gridWidth; x++) {
+                for (let y = 0; y < globals.dimensions.gridHeight; y++) {
                     switch (mapData.statics[x][y]) {
                         case -1:
                             this.map[x][y] = new Void(new Vector(x, y));
@@ -101,12 +102,22 @@ class Game implements GameInterface {
             this.map[Math.floor(door.x)][Math.floor(door.y)] = new Door(door.x, door.y);
         });
 
-        this.lama = new Lama(new Vector(mapData.lama.x, mapData.lama.y), config.dimensions.gridSize);
-        this.pinky = new Pinky(mapData.pinky.x, mapData.pinky.y,);
+        this.lama = new Lama(new Vector(mapData.lama.x, mapData.lama.y), config.gridSize);
+        if(mapData.pinky){
+            this.pinky = new Pinky(mapData.pinky.x, mapData.pinky.y);
+        }
+        if(mapData.inky){
         this.inky = new Inky(mapData.inky.x, mapData.inky.y,);
-        this.clyde = new Clyde(mapData.clyde.x, mapData.clyde.y,);
-        this.blinky = new Blinky(mapData.blinky.x, mapData.blinky.y,);
+        }  
+        if(mapData.clyde){
+        this.clyde = new Clyde(mapData.clyde.x, mapData.clyde.y);
+        }
+        if(mapData.blinky){
+        this.blinky = new Blinky(mapData.blinky.x, mapData.blinky.y);
+        }
+        if(mapData.home){
         this.homeTarget = new Vector(mapData.home.x, mapData.home.y);
+        }
         this.determineBorderTypes()
     }
 
@@ -132,7 +143,7 @@ class Game implements GameInterface {
         this.map && this.map.forEach(col => col && col.forEach(item => item && item.draw(p5)));
         this.lama && this.lama.draw(p5);
         this.lama && this.lama.listenForKeys(p5);
-        this.lama && p5.text(`Punkte: ${this.lama.points}`, 0, 0, p5.width, config.dimensions.gridSize + 5);
+        this.lama && p5.text(`Punkte: ${this.lama.points}`, 0, 0, p5.width, config.gridSize + 5);
         this.inky && this.inky.draw(p5);
         this.pinky && this.pinky.draw(p5);
         this.clyde && this.clyde.draw(p5);
@@ -141,8 +152,8 @@ class Game implements GameInterface {
     }
 
     determineBorderTypes() {
-        for (let x = 0; x < config.dimensions.gridWidth; x++) {
-            for (let y = 0; y < config.dimensions.gridHeight; y++) {
+        for (let x = 0; x < globals.dimensions.gridWidth; x++) {
+            for (let y = 0; y < globals.dimensions.gridHeight; y++) {
                 if (this.map[x][y] instanceof Border) {
                     let neighbors = this.getBorderNeighbors(this.map, x, y);
                     (this.map[x][y] as Border).setNeighbors(neighbors);
@@ -173,17 +184,17 @@ class Game implements GameInterface {
         let seconds = Math.floor(timeDiff / 1000);
         (seconds);
         if (seconds >= 84) {
-            ghosts.forEach(ghost => ghost.chase());
+            ghosts.forEach(ghost => ghost?.chase());
             return;
         }
         if (seconds >= 7 && seconds < 27) {
-            ghosts.forEach(ghost => ghost.chase());
+            ghosts.forEach(ghost => ghost?.chase());
         } else if (seconds >= 27 && seconds < 54) {
-            ghosts.forEach(ghost => ghost.scatter());
+            ghosts.forEach(ghost => ghost?.scatter());
         } else if (seconds >= 54 && seconds < 59) {
-            ghosts.forEach(ghost => ghost.chase());
+            ghosts.forEach(ghost => ghost?.chase());
         } else if (seconds >= 59 && seconds < 84) {
-            ghosts.forEach(ghost => ghost.scatter());
+            ghosts.forEach(ghost => ghost?.scatter());
         }
 
 
@@ -203,7 +214,7 @@ class Game implements GameInterface {
     }
 
     getBorder(borders: Array<Array<Entity>>, x: number, y: number): number {
-        if (x >= 0 && x < config.dimensions.gridWidth && y >= 0 && y < config.dimensions.gridHeight) {
+        if (x >= 0 && x < globals.dimensions.gridWidth && y >= 0 && y < globals.dimensions.gridHeight) {
             if (borders[x][y] instanceof Border) {
                 return 1;
             } else if (borders[x][y] instanceof Void || borders[x][y] instanceof Door) {
@@ -220,6 +231,17 @@ class Game implements GameInterface {
 
 
 
-const game: GameInterface = new Game();
+
+const game = {
+    in: null as null | GameInterface,
+    createInstance() {
+        this.instance = new Game();
+    },
+    getInstance() {
+        if (!this.instance) {
+            this.createInstance();
+        }
+        return this.instance as GameInterface;
+    }}
 
 export default game;

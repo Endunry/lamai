@@ -13,10 +13,12 @@ import FrightenedImg from './assets/Gertrud_Frightened.png';
 import EatenImg from './assets/Gertrud_Eaten.png';
 import mapEditor, { ClickEvent } from './Editor';
 
-export const WIDTH = config.dimensions.gridWidth * config.dimensions.gridSize;
-export const HEIGHT = config.dimensions.gridHeight * config.dimensions.gridSize;
+export let WIDTH = 0;
+export let HEIGHT = 0;
 export let CANVAS_OBJ: P5.Renderer | null;
 
+let p5Sketch: P5 | null = null;
+export const PORT = 1234;
 
 export let HOME_TARGET: Vector = null;
 const BACKGROUND = 'black';
@@ -28,65 +30,90 @@ export const LAMA_SMOOTHNESS = new Fraction(1, LAMA_SPEED);
 console.log(LAMA_SMOOTHNESS)
 export const GERTRUD_SMOOTHNESS = new Fraction(1,  GERTRUD_SPEED);
 
-document.getElementById("debugMode").setAttribute("checked", config.init.debug+"");
+document.getElementById("debugMode").setAttribute("checked", !config.init.debug+"");
 document.getElementById("debugMode").addEventListener("change", () => {
     globals.debug = !globals.debug;
     console.log(globals.debug);
 });
 
-
 window.addEventListener("keydown", function (e) {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-        if (!game.started) {
-            game.start();
+        if (!game.getInstance().started) {
+            game.getInstance().start();
         }
         e.preventDefault();
     }
 }, false);
 
 
+export function initCanvas() {
 
-const sketch = (p5: P5) => {
+    // fetch the dimensions
+    let req = new XMLHttpRequest();
+    req.open('GET', `http://localhost:${PORT}/getDimensions/${globals.mapId}`, false);
+    req.send(null);
+    let dimensions = JSON.parse(req.responseText);
+    console.log(dimensions);
+    globals.dimensions = dimensions;
 
-    p5.mousePressed = e=> mapEditor.mouseListener(e as ClickEvent);
+    WIDTH = globals.dimensions.gridWidth * config.gridSize;
+    HEIGHT = globals.dimensions.gridHeight * config.gridSize;
 
-    p5.mouseDragged = e=> mapEditor.mouseListener(e as ClickEvent);
+    const sketch = (p5: P5) => {
 
-    p5.setup = () => {
-        p5.frameRate(60);
+        if(p5Sketch) {
+            p5Sketch.remove();
+            p5Sketch = null;
+        }
 
-        setImages({
-            pacman: p5.loadImage(LamaImg),
-            blinky: p5.loadImage(BlinkyImg),
-            inky: p5.loadImage(InkyImg),
-            pinky: p5.loadImage(PinkyImg),
-            clyde: p5.loadImage(ClydeImg),
-            frightened: p5.loadImage(FrightenedImg),
-            eaten: p5.loadImage(EatenImg),
-        })
+        p5.mousePressed = e => mapEditor.mouseListener(e as ClickEvent);
 
-        
-        CANVAS_OBJ = p5.createCanvas(WIDTH, HEIGHT);
-        CANVAS_OBJ.parent('app');
-        p5.imageMode(p5.CENTER);
-        p5.textSize(20);
-        p5.textAlign(p5.CENTER, p5.CENTER);
-        p5.background(BACKGROUND);
-        // lama = new Lama(createVector(1, 1), config.dimensions.gridSize);
-        game.init();
-    }
+        p5.mouseDragged = e => mapEditor.mouseListener(e as ClickEvent);
 
-    p5.draw = () => {
-        p5.background(BACKGROUND);
-        
-        game.draw(p5);
+        p5.setup = () => {
+            p5.frameRate(60);
 
-        if(game.started) {
-            game.update();
+            setImages({
+                pacman: p5.loadImage(LamaImg),
+                blinky: p5.loadImage(BlinkyImg),
+                inky: p5.loadImage(InkyImg),
+                pinky: p5.loadImage(PinkyImg),
+                clyde: p5.loadImage(ClydeImg),
+                frightened: p5.loadImage(FrightenedImg),
+                eaten: p5.loadImage(EatenImg),
+            })
+
+
+            CANVAS_OBJ = p5.createCanvas(WIDTH, HEIGHT);
+            CANVAS_OBJ.parent('app');
+            p5.imageMode(p5.CENTER);
+            p5.textSize(20);
+            p5.textAlign(p5.CENTER, p5.CENTER);
+            p5.background(BACKGROUND);
+
+
+            game.createInstance();
+            game.getInstance().init();
+        }
+
+        p5.draw = () => {
+            p5.background(BACKGROUND);
+
+            game.getInstance().draw(p5);
+
+            if (game.getInstance().started) {
+                game.getInstance().update();
+            }
+
         }
 
     }
 
+    p5Sketch = new P5(sketch);
+
 }
 
-new P5(sketch);
+
+
+
+initCanvas();

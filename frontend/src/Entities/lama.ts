@@ -2,6 +2,7 @@ import Moveable, { MoveableInterface } from "./moveable";
 import { Vector } from 'p5';
 import P5 from 'p5';
 import { config, getImages, globals } from '../utils/singletons';
+import { initCanvas } from "..";
 
 export interface LamaInterface extends MoveableInterface{
     size: number;
@@ -21,30 +22,29 @@ class Lama extends Moveable implements LamaInterface {
     }
 
     die(){
-        // clearInterval(timeInterval);
-        // initGame();
         alert("You died!");
+        initCanvas();
     }
 
     drawDebug(p5: P5): void {
         p5.push();
-        p5.translate(this.pos.x * config.dimensions.gridSize + this.size / 2, this.pos.y * config.dimensions.gridSize + this.size / 2);
+        p5.translate(this.pos.x * config.gridSize + this.size / 2, this.pos.y * config.gridSize + this.size / 2);
         p5.noFill();
         p5.stroke("orange");
         p5.strokeWeight(3);
-        p5.ellipse(0, 0, config.dimensions.gridSize * 8 * 2, config.dimensions.gridSize * 8 * 2);
+        p5.ellipse(0, 0, config.gridSize * 8 * 2, config.gridSize * 8 * 2);
         p5.pop();
 
         p5.fill(255, 0, 0);
-        p5.ellipse(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize, this.size / 2, this.size / 2);
+        p5.ellipse(this.pos.x * config.gridSize, this.pos.y * config.gridSize, this.size / 2, this.size / 2);
         p5.fill(255, 255, 0);
-        p5.ellipse(this.logicalPosition.x * config.dimensions.gridSize, this.logicalPosition.y * config.dimensions.gridSize, this.size / 2, this.size / 2);
+        p5.ellipse(this.logicalPosition.x * config.gridSize, this.logicalPosition.y * config.gridSize, this.size / 2, this.size / 2);
     }
 
     draw(p5: P5) {
     
         p5.push();
-        p5.translate(this.pos.x * config.dimensions.gridSize + this.size/2, this.pos.y * config.dimensions.gridSize + this.size/2);
+        p5.translate(this.pos.x * config.gridSize + this.size/2, this.pos.y * config.gridSize + this.size/2);
         p5.noStroke();
         p5.strokeWeight(1);
         // flip the lama if he is moving left
@@ -117,7 +117,7 @@ class Lama extends Moveable implements LamaInterface {
     //             this.pos.x = 0;
     //         }
     //         if(this.pos.x < 0){
-    //             this.pos.x = width-config.dimensions.gridSize;
+    //             this.pos.x = width-config.gridSize;
     //         }
     //     }
     // }

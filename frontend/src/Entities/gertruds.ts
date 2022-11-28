@@ -53,10 +53,10 @@ class Gertrud extends Moveable implements GertrudInterface {
     size: number;
     constructor(x: number, y: number, type: "blinky" | "pinky" | "inky" | "clyde") {
         super(x, y);
-        this.size = config.dimensions.gridSize;
+        this.size = config.gridSize;
         this.fleeImg = getImages().frightened;
         this.eatenImg = getImages().eaten;
-        this.state = "idle"; // idle (only at the start of the game), escaping (escaping the home),  scatter, chase, frightened, eaten
+        this.state = "idle"; // idle (only at the start of the game.getInstance()), escaping (escaping the home),  scatter, chase, frightened, eaten
         this.target = null; // the target tile (determined by the state and type of ghost)
         this.image = getImages()[type] || getImages().clyde;
         this.scatterTarget = null;
@@ -112,12 +112,12 @@ class Gertrud extends Moveable implements GertrudInterface {
         switch (this.state) {
 
             case "escaping":
-                if (game.homeTarget) {
-                    if (this.logicalPosition.dist(game.homeTarget) < 0.5) {
+                if (game.getInstance().homeTarget) {
+                    if (this.logicalPosition.dist(game.getInstance().homeTarget) < 0.5) {
                         this.state = "scatter";
                         return this.scatterTarget;
                     }
-                    return game.homeTarget;
+                    return game.getInstance().homeTarget;
                 }
             case "scatter":
                 return this.scatterTarget;
@@ -139,12 +139,12 @@ class Gertrud extends Moveable implements GertrudInterface {
                 }
                 return this.frightenedTarget();
             case "eaten":
-                if (game.homeTarget) {
-                    if (this.logicalPosition.dist(game.homeTarget) < 0.5) {
+                if (game.getInstance().homeTarget) {
+                    if (this.logicalPosition.dist(game.getInstance().homeTarget) < 0.5) {
                         this.state = this.queuedState;
                         return this.calculateTarget();
                     }
-                    return game.homeTarget;
+                    return game.getInstance().homeTarget;
                 }
         }
     }
@@ -158,7 +158,7 @@ class Gertrud extends Moveable implements GertrudInterface {
     }
 
     eatenTarget() {
-        return game.homeTarget;
+        return game.getInstance().homeTarget;
     }
 
     getPossibleDirections() {
@@ -175,28 +175,28 @@ class Gertrud extends Moveable implements GertrudInterface {
 
     move() {
         super.move();
-        // Check if we collide with game.lama
+        // Check if we collide with game.getInstance().lama
 
         // do a rect collision check
-        if (game.lama.pos.x < this.pos.x + 1 && game.lama.pos.x + 1 > this.pos.x && game.lama.pos.y < this.pos.y + 1 && game.lama.pos.y + 1 > this.pos.y) {
+        if (game.getInstance().lama.pos.x < this.pos.x + 1 && game.getInstance().lama.pos.x + 1 > this.pos.x && game.getInstance().lama.pos.y < this.pos.y + 1 && game.getInstance().lama.pos.y + 1 > this.pos.y) {
             // collision detected!
             if (this.state == "frightened") {
                 this.eaten();
             } else if (this.state != "eaten") {
-                game.lama.die();
+                game.getInstance().lama.die();
             }
         }
     }
 
     drawDebug(p5: P5): void {
         p5.fill(this.targetColor);
-        p5.circle(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize, config.dimensions.gridSize / 2);
+        p5.circle(this.pos.x * config.gridSize, this.pos.y * config.gridSize, config.gridSize / 2);
         p5.fill(this.targetColor);
-        p5.circle(this.logicalPosition.x * config.dimensions.gridSize, this.logicalPosition.y * config.dimensions.gridSize, config.dimensions.gridSize / 2);
+        p5.circle(this.logicalPosition.x * config.gridSize, this.logicalPosition.y * config.gridSize, config.gridSize / 2);
 
         if(this.target && this.targetColor){
             p5.fill(this.targetColor);
-            p5.ellipse(this.target.x * config.dimensions.gridSize, this.target.y * config.dimensions.gridSize, 10, 10);
+            p5.ellipse(this.target.x * config.gridSize, this.target.y * config.gridSize, 10, 10);
         }
     }
 
@@ -204,9 +204,9 @@ class Gertrud extends Moveable implements GertrudInterface {
 
 
         p5.push();
-        p5.translate(this.pos.x * config.dimensions.gridSize + this.size / 2, this.pos.y * config.dimensions.gridSize + this.size / 2);
+        p5.translate(this.pos.x * config.gridSize + this.size / 2, this.pos.y * config.gridSize + this.size / 2);
         p5.noStroke();
-        // flip the game.lama if he is moving left
+        // flip the game.getInstance().lama if he is moving left
         if (this.dir && (this.dir.x < 0 || this.flipped)) {
             if (this.dir.x > 0) {
                 this.flipped = false;
@@ -275,10 +275,10 @@ export class Pinky extends Gertrud {
     }
 
     chaseTarget() {
-        if (game.lama.dir.heading() == -HALF_PI) {
-            return new Vector(game.lama.logicalPosition.x - 4, game.lama.logicalPosition.y - 4);
+        if (game.getInstance().lama.dir.heading() == -HALF_PI) {
+            return new Vector(game.getInstance().lama.logicalPosition.x - 4, game.getInstance().lama.logicalPosition.y - 4);
         } else {
-            return game.lama.logicalPosition.copy().add(game.lama.dir.copy().mult(4));
+            return game.getInstance().lama.logicalPosition.copy().add(game.getInstance().lama.dir.copy().mult(4));
         }
     }
 }
@@ -286,39 +286,39 @@ export class Pinky extends Gertrud {
 export class Blinky extends Gertrud {
     constructor(x: number, y: number) {
         super(x, y, "blinky");
-        this.scatterTarget = new Vector(config.dimensions.gridWidth - 2, 0);
+        this.scatterTarget = new Vector(globals.dimensions.gridWidth - 2, 0);
         this.targetColor = "red";
     }
 
     chaseTarget() {
-        return game.lama.pos;
+        return game.getInstance().lama.pos;
     }
 }
 
 export class Inky extends Gertrud {
     constructor(x: number, y: number) {
         super(x, y, "inky");
-        this.scatterTarget = new Vector(config.dimensions.gridWidth, config.dimensions.gridHeight - 1);
+        this.scatterTarget = new Vector(globals.dimensions.gridWidth, globals.dimensions.gridHeight - 1);
         this.targetColor = "cyan";
     }
 
     chaseTarget() {
-        return new Vector(2 * game.lama.logicalPosition.x - game.blinky.logicalPosition.x, 2 * game.lama.logicalPosition.y - game.blinky.logicalPosition.y);
+        return new Vector(2 * game.getInstance().lama.logicalPosition.x - game.getInstance().blinky.logicalPosition.x, 2 * game.getInstance().lama.logicalPosition.y - game.getInstance().blinky.logicalPosition.y);
     }
 }
 
 export class Clyde extends Gertrud {
     constructor(x: number, y: number) {
         super(x, y, "clyde");
-        this.scatterTarget = new Vector(0, config.dimensions.gridHeight - 1);
+        this.scatterTarget = new Vector(0, globals.dimensions.gridHeight - 1);
         this.targetColor = "orange";
     }
 
     chaseTarget() {
-        if (game.lama.logicalPosition.dist(this.logicalPosition) < 8) {
+        if (game.getInstance().lama.logicalPosition.dist(this.logicalPosition) < 8) {
             return this.scatterTarget;
         } else {
-            return game.lama.logicalPosition;
+            return game.getInstance().lama.logicalPosition;
         }
     }
 }

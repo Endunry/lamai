@@ -3,7 +3,7 @@ import { LAMA_SMOOTHNESS } from "..";
 import game from "../Game";
 import { config } from "../utils/singletons";
 import Entity, { EntityInterface } from "./entity";
-import Lama, { LamaInterface } from "./lama";
+import { LamaInterface } from "./lama";
 
 interface CollectibleInterface extends EntityInterface {
     width: number;
@@ -24,20 +24,20 @@ class Collectible extends Entity implements CollectibleInterface {
 
     draw(p5: P5){
         p5.push();
-        p5.translate(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize);
+        p5.translate(this.pos.x * config.gridSize, this.pos.y * config.gridSize);
         p5.fill(this.color);
-        p5.ellipse(config.dimensions.gridSize/2, config.dimensions.gridSize/2 , this.width, this.height);
+        p5.ellipse(config.gridSize/2, config.gridSize/2 , this.width, this.height);
         p5.pop();
     }
 
 
 
     isColliding(pos: Vector, size: number, dir: Vector) {
-        const actualPosition = new Vector(this.pos.x + config.dimensions.gridSize/2, this.pos.y + config.dimensions.gridSize/2);
-        const actualOtherPosition = new Vector(pos.x + config.dimensions.gridSize/2, pos.y + config.dimensions.gridSize/2);
+        const actualPosition = new Vector(this.pos.x + config.gridSize/2, this.pos.y + config.gridSize/2);
+        const actualOtherPosition = new Vector(pos.x + config.gridSize/2, pos.y + config.gridSize/2);
         const radius = this.width/2;
         const distance = actualPosition.dist(actualOtherPosition);
-        return distance < radius+config.dimensions.gridSize/2+LAMA_SMOOTHNESS.toFloat();
+        return distance < radius+config.gridSize/2+LAMA_SMOOTHNESS.toFloat();
     }
 }
 
@@ -59,7 +59,7 @@ export class Cookie extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points++;
-                game.map[this.pos.x][this.pos.y] = null;
+                game.getInstance().map[this.pos.x][this.pos.y] = null;
             }
         }
 }
@@ -72,12 +72,12 @@ export class Power extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points+= 50;
-                game.map[this.pos.x][this.pos.y] = null;
-                game.lama.powerUp();
-                game.pinky && game.pinky.flee()
-                game.inky && game.inky.flee()
-                game.clyde && game.clyde.flee()
-                game.blinky && game.blinky.flee()
+                game.getInstance().map[this.pos.x][this.pos.y] = null;
+                game.getInstance().lama.powerUp();
+                game.getInstance().pinky && game.getInstance().pinky.flee()
+                game.getInstance().inky && game.getInstance().inky.flee()
+                game.getInstance().clyde && game.getInstance().clyde.flee()
+                game.getInstance().blinky && game.getInstance().blinky.flee()
             }
         }
 }

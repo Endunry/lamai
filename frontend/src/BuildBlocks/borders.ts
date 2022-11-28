@@ -97,7 +97,7 @@ class Border extends Entity implements BorderInterface {
     _void_inner_tl: boolean;
     constructor(atPosition: Vector) {
         super(atPosition.x, atPosition.y);
-        this.size = config.dimensions.gridSize;
+        this.size = config.gridSize;
     }
 
     isSat(border: Array<number>, no_border: Array<number>, check: check_type) {
@@ -201,7 +201,7 @@ class Border extends Entity implements BorderInterface {
 
         p5.push();
 
-        p5.translate(this.pos.x * config.dimensions.gridSize, this.pos.y * config.dimensions.gridSize);
+        p5.translate(this.pos.x * config.gridSize, this.pos.y * config.gridSize);
         if (globals.debug) {
             p5.noStroke();
             p5.fill(64, 64, 255, 64);

@@ -6,8 +6,9 @@ class Door extends Entity{
     size: number;
     constructor(x:number,y:number){
         super(x,y);
-        this.size = config.dimensions.gridSize;
+        this.size = config.gridSize;
     }
+
 
     getLegalDirection(){
         // At the moment only y directions
@@ -20,7 +21,7 @@ class Door extends Entity{
 
     draw(p5: P5){
         p5.push();
-        p5.translate(this.pos.x*config.dimensions.gridSize, this.pos.y*config.dimensions.gridSize);
+        p5.translate(this.pos.x*config.gridSize, this.pos.y*config.gridSize);
         p5.noStroke();
         p5.fill("yellow");
         p5.rect(0, 0, this.size, this.size/2);

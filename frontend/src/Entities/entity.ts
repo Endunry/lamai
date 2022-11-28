@@ -1,4 +1,5 @@
 import P5, { Vector } from "p5";
+import { Coordinates } from './../types/maps';
 
 export interface EntityInterface {
     pos: Vector;
@@ -7,7 +8,7 @@ export interface EntityInterface {
     isColliding(pos:Vector, size:number, dir:Vector): boolean;
     draw(p5: P5): void;
     drawDebug(p5: P5): void;
-
+    deserializeCoords(): Coordinates;
 }
 
 class Entity implements EntityInterface {
@@ -22,6 +23,13 @@ class Entity implements EntityInterface {
     draw(p5: P5){
 
     }  
+
+    deserializeCoords(){
+        return {
+            x: this.pos.x,
+            y: this.pos.y
+        }
+    }
 
     onCollision(other:Entity){
         // ("Collision", other)

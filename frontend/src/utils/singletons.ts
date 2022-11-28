@@ -33,11 +33,7 @@ export const config = {
         debug: false,
     },
     defaultMap: "635143ded482a24c597f959d",
-    dimensions:{
-        gridSize: 30,
-        gridWidth: 28,
-        gridHeight: 36
-    },
+    gridSize: 20,
     speed:{
         val: 1, // speed.val is a arbitrary parameter
         pacman: {
@@ -59,7 +55,12 @@ export let globals = {
     debug: config.init.debug,
     startTime: undefined as Date | undefined,
     score: 0,
+    dimensions: {
+        gridWidth: 28,
+        gridHeight: 36
+    },
     lives: config.player.lives,
     borderDrawing: 'original' as 'original' | 'simple',
+    mapId: config.defaultMap,
 }
 

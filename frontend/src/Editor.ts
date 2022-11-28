@@ -1,4 +1,5 @@
 import { Vector } from "p5";
+import { initCanvas } from ".";
 import Border from "./BuildBlocks/borders";
 import Door from "./BuildBlocks/door";
 import Void from "./BuildBlocks/void";
@@ -7,7 +8,8 @@ import Entity from "./Entities/entity";
 import { Clyde, Pinky, Blinky, Inky } from "./Entities/gertruds";
 import Lama from "./Entities/lama";
 import game from "./Game";
-import { config } from "./utils/singletons";
+import { mapData } from "./types/maps";
+import { config, globals } from "./utils/singletons";
 
 export type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
 type printType = { x: any, y: any }[];
@@ -22,18 +24,25 @@ interface MapEditorInterface {
 // TODO: Map Editor zum laufen bringen
 class MapEditor implements MapEditorInterface {
 
-    constructor(editButtonId: string, saveButtonId: string, toolbarId: string, saveAsButtonId: string, selectId: string, brushRangeId: string) {
+    constructor(editButtonId: string, saveButtonId: string, toolbarId: string, saveAsButtonId: string, selectId: string, brushRangeId: string, newMapButtonId: string) {
         this.editButton = document.getElementById(editButtonId) as HTMLButtonElement;
         this.saveButton = document.getElementById(saveButtonId) as HTMLButtonElement;
         this.saveAsButton = document.getElementById(saveAsButtonId) as HTMLButtonElement;
         this.mapSelect = document.getElementById(selectId) as HTMLSelectElement;
         this.toolbar = document.getElementById(toolbarId) as HTMLDivElement;
         this.brushRange = document.getElementById(brushRangeId) as HTMLInputElement;
-
+        
+        this.newMapButton = document.getElementById(newMapButtonId) as HTMLButtonElement;
         this.editButton.addEventListener('click', () => this.edit());
         this.saveButton.addEventListener('click', () => this.saveMap());
+        this.newMapButton.addEventListener('click', () => this.newMap());
         this.toolbar.addEventListener('click', e => this.selectTool(e as ClickEvent));
-        this.mapSelect.addEventListener('change', () => game.loadMap(this.mapSelect.value));
+        this.mapSelect.addEventListener('change', () => {
+
+            globals.mapId = this.mapSelect.value;
+            initCanvas();
+
+        });
         this.saveAsButton.addEventListener('click', () => this.saveMap(this.mapSelect.value));
 
         let req = new XMLHttpRequest();
@@ -49,6 +58,66 @@ class MapEditor implements MapEditorInterface {
             this.mapSelect.appendChild(option);
         }
         this.currentSelection = null;
+    }
+
+    newMap(){
+
+        let width = parseInt(prompt('Width: '));
+        let height = parseInt(prompt('Height: '));
+        let mapName = prompt('Name: ');
+        let request = new XMLHttpRequest();
+        request.open('GET', `http://localhost:${PORT}/getSavedNames`, false);
+        request.send(null);
+        let savedNames: { name: string }[] = JSON.parse(request.responseText);
+        console.log(savedNames);
+        // Check if the name is already taken
+        if (savedNames.some((name) => name.name == mapName)) {
+            alert('Map name already taken');
+            return;
+        }
+
+        let mapData = {
+            statics: new Array(width).fill(new Array(height).fill(null)),
+            lama: {x: 0, y: 0},
+            pinky: {},
+            inky: {},
+            door: [],
+            clyde:{},
+            blinky: {},
+            home: {},
+            borderDrawing: "original",
+            dimensions: {
+                gridWidth: width,
+                gridHeight: height
+            }
+        } as mapData
+
+        let request2 = new XMLHttpRequest();
+        request2.open('POST', `http://localhost:${PORT}/saveMap`, false);
+        request2.setRequestHeader('Content-Type', 'application/json');
+        request2.send(JSON.stringify({
+            name: mapName,
+            data: mapData
+        }));
+        let res = JSON.parse(request2.responseText);
+
+        let option = document.createElement('option');
+        option.value = res._id;
+        option.innerText = res.name;
+        option.selected = true;
+        for (let opt in this.mapSelect.children) {
+            if ((this.mapSelect.children[opt] as HTMLOptionElement).value == res._id) {
+                (this.mapSelect.children[opt] as HTMLOptionElement).selected = false;
+                return;
+            }
+        }
+
+        this.mapSelect.children
+        this.mapSelect.appendChild(option);
+        globals.mapId = res._id;
+        globals.dimensions = mapData.dimensions;
+        initCanvas();
+
     }
 
 
@@ -82,10 +151,10 @@ class MapEditor implements MapEditorInterface {
         newCurrSelection.id = 'currentSelection';
         document.getElementById('currentSelection').replaceWith(newCurrSelection);
         let door: printType = [];
-        let statics: number[][] = new Array(config.dimensions.gridWidth).fill(0).map(() => new Array(config.dimensions.gridHeight)); // Void = 0, Border = 1, Cookie = 2, Power = 3, Door = 4
-        for (let i = 0; i < config.dimensions.gridWidth; i++) {
-            for (let j = 0; j < config.dimensions.gridHeight; j++) {
-                let entity = game.map[i][j];
+        let statics: number[][] = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight)); // Void = 0, Border = 1, Cookie = 2, Power = 3, Door = 4
+        for (let i = 0; i < globals.dimensions.gridWidth; i++) {
+            for (let j = 0; j < globals.dimensions.gridHeight; j++) {
+                let entity = game.getInstance().map[i][j];
                 if (!entity) continue;
                 switch (entity.constructor.name) {
                     case 'Void':
@@ -109,18 +178,20 @@ class MapEditor implements MapEditorInterface {
             }
         }
 
-
+        const home = game.getInstance().homeTarget && { x: game.getInstance().homeTarget.x, y: game.getInstance().homeTarget.y };
         let mapData = {
             statics,
-            lama: game.lama,
-            pinky: game.pinky,
-            inky: game.inky,
+            lama: game.getInstance().lama,
+            pinky: game.getInstance().pinky,
+            inky: game.getInstance().inky,
             door,
-            clyde: game.clyde,
-            blinky: game.blinky,
-            home: {
-                x: game.homeTarget.x,
-                y: game.homeTarget.y
+            clyde: game.getInstance().clyde,
+            blinky: game.getInstance().blinky,
+            home,
+            borderDrawing: globals.borderDrawing,
+            dimensions: {
+                gridWidth: globals.dimensions.gridWidth,
+                gridHeight: globals.dimensions.gridHeight
             }
         }
         let request2 = new XMLHttpRequest();
@@ -181,40 +252,40 @@ class MapEditor implements MapEditorInterface {
             case 'border':
                 insertedItem = new Border(new Vector(x, y));
                 break;
-            case 'cookie':
+            case 'lamai_cookie':
                 insertedItem = new Cookie(x, y);
                 break;
             case 'powerup':
                 insertedItem = new Power(x, y);
                 break;
             case 'gertrud1':
-                game.clyde = new Clyde(halfX / 2, halfY / 2);
+                game.getInstance().clyde = new Clyde(halfX / 2, halfY / 2);
                 break;
             case 'gertrud2':
-                game.inky = new Pinky(halfX / 2, halfY / 2);
+                game.getInstance().inky = new Pinky(halfX / 2, halfY / 2);
                 break;
             case 'gertrud3':
-                game.pinky = new Blinky(halfX / 2, halfY / 2);
+                game.getInstance().pinky = new Blinky(halfX / 2, halfY / 2);
                 break;
             case 'gertrud4':
-                game.blinky = new Inky(halfX / 2, halfY / 2);
+                game.getInstance().blinky = new Inky(halfX / 2, halfY / 2);
                 break;
             case 'lama':
-                game.lama = new Lama(new Vector(halfX / 2, halfY / 2), config.dimensions.gridSize);
+                game.getInstance().lama = new Lama(new Vector(halfX / 2, halfY / 2), config.gridSize);
                 return;
             case 'homeTarget':
-                game.homeTarget = new Vector(x, halfY / 2);
+                game.getInstance().homeTarget = new Vector(x, halfY / 2);
                 return;
             case 'homeWall':
                 insertedItem = new Door(x, halfY / 2);
             case 'delete':
-                game.map[x][y] = null;
+                game.getInstance().map[x][y] = null;
                 break;
             default:
                 return;
         }
         if (insertedItem) {
-            game.map[x][y] = insertedItem;
+            game.getInstance().map[x][y] = insertedItem;
         }
     }
 
@@ -223,15 +294,15 @@ class MapEditor implements MapEditorInterface {
         const isBrushable = ['void', 'border', 'cookie', 'powerup', 'delete'].indexOf(this.currentSelection) > -1;
         // Determine the x and y coords
         let rect = document.querySelector('#app canvas').getBoundingClientRect();
-        let x = Math.floor((event.clientX - rect.left) / config.dimensions.gridSize);
-        let y = Math.floor((event.clientY - rect.top) / config.dimensions.gridSize);
+        let x = Math.floor((event.clientX - rect.left) / config.gridSize);
+        let y = Math.floor((event.clientY - rect.top) / config.gridSize);
 
-        if (x < 0 || x >= config.dimensions.gridWidth || y < 0 || y >= config.dimensions.gridHeight) return;
-        let halfX = Math.floor((event.clientX - rect.left) / (config.dimensions.gridSize / 2));
-        let halfY = Math.floor((event.clientY - rect.top) / (config.dimensions.gridSize / 2));
+        if (x < 0 || x >= globals.dimensions.gridWidth || y < 0 || y >= globals.dimensions.gridHeight) return;
+        let halfX = Math.floor((event.clientX - rect.left) / (config.gridSize / 2));
+        let halfY = Math.floor((event.clientY - rect.top) / (config.gridSize / 2));
         // Check if the coords are in the map
-        if (x < 0 || x > config.dimensions.gridWidth || y < 0 || y > config.dimensions.gridHeight) return;
-        const isOverlapping = (game.map[x] && game.map[x][y] != null);
+        if (x < 0 || x > globals.dimensions.gridWidth || y < 0 || y > globals.dimensions.gridHeight) return;
+        const isOverlapping = (game.getInstance().map[x] && game.getInstance().map[x][y] != null);
 
 
         // }
@@ -239,8 +310,8 @@ class MapEditor implements MapEditorInterface {
             if (isBrushable) {
                 let brushPoints = this.getBrushPoints(x, y, +this.brushRange.value);
                 for (let point of brushPoints) {
-                    if(point.x < 0 || point.x >= config.dimensions.gridWidth || point.y < 0 || point.y >= config.dimensions.gridHeight) continue;
-                    if (this.currentSelection !== 'delete' && game.map[Math.floor(point.x)][Math.floor(point.y)]) continue;
+                    if (point.x < 0 || point.x >= globals.dimensions.gridWidth || point.y < 0 || point.y >= globals.dimensions.gridHeight) continue;
+                    if (this.currentSelection !== 'delete' && game.getInstance().map[Math.floor(point.x)][Math.floor(point.y)]) continue;
                     this.insertEntity(Math.floor(point.x), Math.floor(point.y), halfX, halfY);
                 }
             } else {
@@ -253,17 +324,18 @@ class MapEditor implements MapEditorInterface {
                 case 'border':
                 case 'delete':
                 case 'homeWall':
-                    game.determineBorderTypes();
+                    game.getInstance().determineBorderTypes();
                     break;
                 default:
             }
         
     }
     getBrushPoints(x: number, y: number, radius: number) {
+        if(radius == 0) return [{x, y}];
         let brushPoints = [];
         for (let i = x - radius; i <= x + radius; i++) {
             for (let j = y - radius; j <= y + radius; j++) {
-                if (i < 0 || i >= config.dimensions.gridWidth || j < 0 || j >= config.dimensions.gridHeight) continue;
+                if (i < 0 || i >= globals.dimensions.gridWidth || j < 0 || j >= globals.dimensions.gridHeight) continue;
                 if (Math.sqrt(Math.pow(i - x, 2) + Math.pow(j - y, 2)) <= radius) {
                     brushPoints.push({ x: i, y: j });
                 }
@@ -277,11 +349,12 @@ class MapEditor implements MapEditorInterface {
     saveButton: HTMLButtonElement;
     saveAsButton: HTMLButtonElement;
     toolbar: HTMLDivElement;
+    newMapButton: HTMLButtonElement;
     mapSelect: HTMLSelectElement;
     brushRange: HTMLInputElement;
 
 }
 
-const mapEditor: MapEditorInterface = new MapEditor('editButton', 'saveButton', 'toolbar', "loadButton", "mapSelect", "brushRadius");
+const mapEditor: MapEditorInterface = new MapEditor('editButton', 'saveButton', 'toolbar', "loadButton", "mapSelect", "brushRadius", "newMap");
 
 export default mapEditor;

@@ -14,6 +14,8 @@ app.use(parser.json());
 // Use cors
 app.use(cors());
 
+
+
 mongoose.connect(`mongodb+srv://lamai:${process.env.LAMAI_DB_PASS}@lamai.ztk6v9o.mongodb.net/lamai`);
 const MapSchema = new mongoose.Schema({
     name: String,
@@ -26,6 +28,16 @@ const MapModel = mongoose.model("maps", MapSchema);
 app.get("/getSavedNames", async (req, res) => {
     let data = await MapModel.find(undefined, 'name').exec();
     res.send(JSON.stringify(data));
+});
+
+app.get("/getDimensions/:id", async (req, res) => {
+    let data = await MapModel.findById(req.params.id, ).exec();
+    console.log(data.data);
+    let response = {
+        gridWidth: data.data.dimensions?.gridWidth || 28,
+        gridHeight: data.data.dimensions?.gridHeight || 36
+    }
+    res.send(JSON.stringify(response));
 });
 
 app.post("/saveMap", async (req, res) => {
