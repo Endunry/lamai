@@ -8,7 +8,6 @@
   },
   "scripts": {
     "start": "npx http-server -s",
-    "prestart": "npm run build",
     "build": "npx webpack --config webpack.config.js"
   },
   "repository": {

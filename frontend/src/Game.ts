@@ -29,6 +29,7 @@ interface GameInterface {
     draw(p5: P5): void;
     drawDebug(p5: P5): void;
 }
+const PORT = 1234;
 
 class Game implements GameInterface {
     constructor() {
@@ -70,7 +71,7 @@ class Game implements GameInterface {
         this.started = false;
         // let mapData = mapdatainit;   
         let request = new XMLHttpRequest();
-        request.open('GET', `http://localhost:8080/getMap/${id}`, false);
+        request.open('GET', `http://localhost:${PORT}/getMap/${id}`, false);
         request.send(null);
         let mapData = JSON.parse(request.responseText).data;
         console.log(mapData)

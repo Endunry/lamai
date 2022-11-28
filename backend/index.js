@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 // load dotenv
 require('dotenv').config();
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 1234;
 
 app.use(parser.json());
 

@@ -11,7 +11,7 @@ import { config } from "./utils/singletons";
 
 export type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
 type printType = { x: any, y: any }[];
-
+const PORT = 1234;
 interface MapEditorInterface {
     saveMap(_id?: string): void;
     selectTool(tool?: ClickEvent): void;
@@ -37,7 +37,7 @@ class MapEditor implements MapEditorInterface {
         this.saveAsButton.addEventListener('click', () => this.saveMap(this.mapSelect.value));
 
         let req = new XMLHttpRequest();
-        req.open('GET', 'http://localhost:8080/getSavedNames', false);
+        req.open('GET', `http://localhost:${PORT}/getSavedNames`, false);
         req.send(null);
         let savedNames: { name: string, _id: string }[] = JSON.parse(req.responseText);
         for (let name of savedNames) {
@@ -63,7 +63,7 @@ class MapEditor implements MapEditorInterface {
         if (!mapName) return;
         // Get all the names with a http request
         let request = new XMLHttpRequest();
-        request.open('GET', 'http://localhost:8080/getSavedNames', false);
+        request.open('GET', `http://localhost:${PORT}/getSavedNames`, false);
         request.send(null);
         let savedNames: { name: string }[] = JSON.parse(request.responseText);
         console.log(savedNames);
@@ -125,12 +125,12 @@ class MapEditor implements MapEditorInterface {
         }
         let request2 = new XMLHttpRequest();
         if (id) {
-            request2.open('PUT', `http://localhost:8080/updateMap/${id}`, false);
+            request2.open('PUT', `http://localhost:${PORT}/updateMap/${id}`, false);
             request2.setRequestHeader('Content-Type', 'application/json');
             request2.send(JSON.stringify({ data: mapData }));
         } else {
 
-            request2.open('POST', 'http://localhost:8080/saveMap', false);
+            request2.open('POST', `http://localhost:${PORT}/saveMap`, false);
             request2.setRequestHeader('Content-Type', 'application/json');
             request2.send(JSON.stringify({
                 name: mapName,
