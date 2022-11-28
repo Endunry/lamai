@@ -135,20 +135,20 @@ class Border extends Entity implements BorderInterface {
         this._neighbors = neighbors;
 
         if (globals.borderDrawing == 'simple') {
-            this._top = this.isSat([3, 1], [0], 'empty_or_void')
-            this._bottom = this.isSat([3, 1], [2], 'empty_or_void')
-            this._right = this.isSat([0, 2], [1], 'empty_or_void')
-            this._left = this.isSat([0, 2], [3], 'empty_or_void')
+            this._top = this.isSat([3, 1], [0], 'empty_or_void');
+            this._bottom = this.isSat([3, 1], [2], 'empty_or_void');
+            this._right = this.isSat([0, 2], [1], 'empty_or_void');
+            this._left = this.isSat([0, 2], [3], 'empty_or_void');
 
-            this._outer_tr = this.isSat([2, 3],[0, 1], 'empty_or_void')
-            this._outer_br = this.isSat([0, 3],[1, 2], 'empty_or_void')
-            this._outer_bl = this.isSat([0, 1],[2, 3], 'empty_or_void')
-            this._outer_tl = this.isSat([1, 2],[3, 0], 'empty_or_void')
+            this._outer_tr = this.isSat([2, 3],[0, 1], 'empty_or_void');
+            this._outer_br = this.isSat([0, 3],[1, 2], 'empty_or_void');
+            this._outer_bl = this.isSat([0, 1],[2, 3], 'empty_or_void');
+            this._outer_tl = this.isSat([1, 2],[3, 0], 'empty_or_void');
 
-            this._inner_tr = this.isSat([0, 1],[4], 'empty_or_void')
-            this._inner_br = this.isSat([1, 2],[5], 'empty_or_void')
-            this._inner_bl = this.isSat([3, 2],[6], 'empty_or_void')
-            this._inner_tl = this.isSat([0, 3],[7], 'empty_or_void')
+            this._inner_tr = this.isSat([0, 1],[4], 'empty_or_void');
+            this._inner_br = this.isSat([1, 2],[5], 'empty_or_void');
+            this._inner_bl = this.isSat([3, 2],[6], 'empty_or_void');
+            this._inner_tl = this.isSat([0, 3],[7], 'empty_or_void');
 
             this._horizontal_left = this.isSat([3], [0, 1, 2], 'empty_or_void') || (this.isSat([1], [0, 2], 'empty_or_void') && this.isSat([], [3], 'void'));
             this._horizontal_right = this.isSat([1], [0, 3, 2], 'empty_or_void') || (this.isSat([3], [0, 2], 'empty_or_void') && this.isSat([], [1], 'void'));
@@ -156,7 +156,7 @@ class Border extends Entity implements BorderInterface {
             this._vertical_top = this.isSat([0], [1, 2, 3], 'empty_or_void') || (this.isSat([2], [1, 3], 'empty_or_void') && this.isSat([], [0], 'void'));
             this._vertical_bottom = this.isSat([2], [1, 0, 3], 'empty_or_void') || (this.isSat([0], [1, 3], 'empty_or_void') && this.isSat([], [2], 'void'));
 
-            this._single = this.isSat([], [0, 1, 2, 3], 'empty_or_void')
+            this._single = this.isSat([], [0, 1, 2, 3], 'empty_or_void');
         } else if (globals.borderDrawing == 'original') {
             this._tr = this.isSat([3, 2],[6], 'empty') || this.isSat([2, 3],[0, 1], 'empty');
             this._br = this.isSat([0, 3],[7], 'empty') || this.isSat([0, 3],[1, 2], 'empty');
