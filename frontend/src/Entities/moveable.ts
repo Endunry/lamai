@@ -75,6 +75,7 @@ class Moveable extends Entity implements MoveableInterface {
 
     move(){
         if(!game.started) return;
+        if(!this.dir) return;
         this.pos.add(this.dir.copy().mult(this.smoothness.toFloat()));
         this.movementFraction = this.movementFraction.add(this.smoothness);
         if (this.movementFraction.toFloat() >= 1) {

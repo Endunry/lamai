@@ -9,11 +9,13 @@
     <script type="text/javascript" src="./dist/bundle.js" defer></script>
 </head>
 <body>
-    <div class="swcont">
-        <span id="debugSwitch">Debug</span>
-        <label class="switch" id="debugMode"><input type="checkbox" />
-            <div></div>
-        </label>
+    <div id="controls">
+        <div class="swcont">
+            <span id="debugSwitch">Debug</span>
+            <label class="switch" id="debugMode"><input type="checkbox" />
+                <div></div>
+            </label>
+        </div>
     </div>
     <div id="wrapper">
         <div id="app"></div>
@@ -33,16 +35,20 @@
             <div  class="homeTarget" id="homeTarget">Home</div>
             <div  class="homeWall" id="homeWall"></div>
         </div>
+        <div>
+            <input type="range" id="brushRadius" min="1" max="5" step="0.1" value="1">
+        </div>
         <div id="mode">
             <button id="editButton">Editieren</button>
             <div>
                 <span>Ausgewählt: </span>
                 <span id="currentSelection"></span>
             </div>
-            <button disabled id="saveButton">Speichern</button>
-            <button id="loadButton">Laden</button>
+            <button disabled id="saveButton">Speichern als...</button>
+            <select name="mapSelect" id="mapSelect">
+            </select>
+            <button id="loadButton">Speichern</button>
         </div>
-        <span  id="io"></span>
     </div>
 
 </body>

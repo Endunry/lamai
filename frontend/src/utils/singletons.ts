@@ -32,6 +32,7 @@ export const config = {
     init: {
         debug: false,
     },
+    defaultMap: "635143ded482a24c597f959d",
     dimensions:{
         gridSize: 30,
         gridWidth: 28,

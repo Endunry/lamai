@@ -1,0 +1,22 @@
+{
+  "name": "lamai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently --kill-others -n Frontend,Backend \"cd frontend && npm run start\" \"cd backend && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Raqhael/lamai.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Raqhael/lamai/issues"
+  },
+  "homepage": "https://github.com/Raqhael/lamai#readme",
+  "devDependencies": {
+    "concurrently": "^7.4.0"
+  }
+}

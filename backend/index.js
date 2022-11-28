@@ -33,7 +33,7 @@ app.post("/saveMap", async (req, res) => {
         if (err) {
             res.send(err);
         } else {
-            res.send({message: "success"});
+            res.send({name: data.name, _id: data._id});
         }
     });
 
@@ -51,8 +51,8 @@ app.delete("/deleteMap/:id", async (req, res) => {
 
 // UPDATE
 app.put("/updateMap/:id", async (req, res) => {
-    let data = await MapModel.findByIdAndUpdate(req.params.id, req.body).exec();
-    res.send(JSON.stringify(data));
+    let data = await MapModel.findByIdAndUpdate(req.params.id, {data:req.body.data}).exec();
+    res.send(JSON.stringify({name: data.name, _id: data._id}));
 });
 
 

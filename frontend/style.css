@@ -137,9 +137,13 @@ body > canvas:focus{
     transform: scale(0.4);
 }
 
-.swcont {
-    position:absolute;
+#controls{
+    position: fixed;
     margin: 1rem;
+}
+
+.swcont {
+    
     height: 40px;
     text-align: center;
 }

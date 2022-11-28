@@ -45,3 +45,4 @@ yarn.lock
 .cache
 dist
 .parcel-cache
+package-lock.json

@@ -67,31 +67,36 @@ class Game implements GameInterface {
 
     loadMap(id: string = "635143ded482a24c597f959d"): void {
         this.map = new Array(config.dimensions.gridWidth).fill(0).map(() => new Array(config.dimensions.gridHeight));
-        // let mapData = mapdatainit;
+        this.started = false;
+        // let mapData = mapdatainit;   
         let request = new XMLHttpRequest();
         request.open('GET', `http://localhost:8080/getMap/${id}`, false);
         request.send(null);
         let mapData = JSON.parse(request.responseText).data;
-        for (let x = 0; x < config.dimensions.gridWidth; x++) {
-            for (let y = 0; y < config.dimensions.gridHeight; y++) {
-                switch (mapData.statics[x][y]) {
-                    case -1:
-                        this.map[x][y] = new Void(new Vector(x, y));
-                        break;
-                    case 1:
-                        this.map[x][y] = new Border(new Vector(x, y));
-                        break;
-                    case 2:
-                        this.map[x][y] = new Cookie(x, y);
-                        break;
-                    case 3:
-                        this.map[x][y] = new Power(x, y);
-                        break;
-                    default:
+        console.log(mapData)
+        if (mapData.statics) {
+
+            for (let x = 0; x < config.dimensions.gridWidth; x++) {
+                for (let y = 0; y < config.dimensions.gridHeight; y++) {
+                    switch (mapData.statics[x][y]) {
+                        case -1:
+                            this.map[x][y] = new Void(new Vector(x, y));
+                            break;
+                        case 1:
+                            this.map[x][y] = new Border(new Vector(x, y));
+                            break;
+                        case 2:
+                            this.map[x][y] = new Cookie(x, y);
+                            break;
+                        case 3:
+                            this.map[x][y] = new Power(x, y);
+                            break;
+                        default:
+                    }
                 }
             }
         }
-        mapData.door.forEach((door: { x: number; y: number; }) => {
+        mapData.door?.forEach((door: { x: number; y: number; }) => {
             this.map[Math.floor(door.x)][Math.floor(door.y)] = new Door(door.x, door.y);
         });
 
@@ -101,6 +106,7 @@ class Game implements GameInterface {
         this.clyde = new Clyde(mapData.clyde.x, mapData.clyde.y,);
         this.blinky = new Blinky(mapData.blinky.x, mapData.blinky.y,);
         this.homeTarget = new Vector(mapData.home.x, mapData.home.y);
+        this.determineBorderTypes()
     }
 
     init(): void {
