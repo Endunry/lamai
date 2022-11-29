@@ -182,7 +182,7 @@ class Gertrud extends Moveable implements GertrudInterface {
             if (this.state == "frightened") {
                 this.eaten();
             } else if (this.state != "eaten") {
-                globals.game.getInstance().lama.die();
+                globals.game.getInstance().lose();
             }
         }
     }

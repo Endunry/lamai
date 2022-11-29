@@ -9,12 +9,16 @@ export interface mapData{
     home: Coordinates | null;
     borderDrawing?: 'original' | 'simple';
     dimensions?: Dimensions;
+    agentType?: string;
+
 }
 
 export interface Dimensions{
     gridWidth: number;
     gridHeight: number;
 }
+
+export type AgentType = 'random' | 'reflex' | null;
 
 export interface Coordinates {
     x: number;

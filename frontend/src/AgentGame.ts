@@ -19,8 +19,12 @@ export class AgentGame extends Game {
     }
 
     win(): void {
-        alert(`Du hast gewonnen! Punktzahl; ${this.lama.points}`);
-        initCanvas();
+        this.readyForRestart = true;
+        this.started = false;
+    }
+    lose(): void {
+        this.readyForRestart = true;
+        this.started = false;
     }
     removeMoveable(moveable: MoveableInterface): void {
         switch (moveable.constructor.name) {
@@ -46,11 +50,9 @@ export class AgentGame extends Game {
         await super.update();
 
         if(this.lama.isInGrid()){
-            p5Sketch.noLoop();
             await this.agent.sense(this);
             let move = this.agent.act();
             this.lama.listenForKeys(move);
-            p5Sketch.loop();
         }
     }
 

@@ -1,7 +1,7 @@
 import { GameInterface } from "../Game";
 import { Agent } from "./Agent";
 
-export default class RandomAgent extends Agent {
+export default class ReflexAgent extends Agent {
 
     rand: number = 0;
 

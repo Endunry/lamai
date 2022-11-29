@@ -7,24 +7,21 @@ import { GameMove } from "../types/game";
 
 export interface LamaInterface extends MoveableInterface{
     size: number;
-    die: () => void;
     powerUp: () => void;
     listenForKeys: (p5: P5 | GameMove) => void;
 }
 
 class Lama extends Moveable implements LamaInterface {
     size: number;
+    sizeMult: number;
     constructor( atPosition: Vector, size: number) {
         super(atPosition.x, atPosition.y);
         (atPosition);
         this.points = 0;
         this.size = size;
+        this.sizeMult = 1.9;
     }
 
-    die(){
-        alert("You died!");
-        initCanvas();
-    }
 
     drawDebug(p5: P5): void {
         p5.push();
@@ -58,7 +55,7 @@ class Lama extends Moveable implements LamaInterface {
         }
 
         
-        p5.image(getImages().pacman, 0, 0, this.size * 1.9, this.size * 1.9);
+        p5.image(getImages().pacman, 0, 0, this.size * this.sizeMult, this.size * this.sizeMult);
         p5.fill("yellow");
         // include img
         // p5.ellipse(0, 0, this._size);

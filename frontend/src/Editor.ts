@@ -7,9 +7,11 @@ import { Cookie, Power } from "./Entities/collectible";
 import Entity from "./Entities/entity";
 import { Clyde, Pinky, Blinky, Inky } from "./Entities/gertruds";
 import Lama from "./Entities/lama";
-import { mapData } from "./types/maps";
+import { AgentType, mapData } from "./types/maps";
 import { config, globals } from "./utils/singletons";
 import { MoveableInterface } from './Entities/moveable';
+import RandomAgent from "./agents/RandomAgent";
+import ReflexAgent from "./agents/ReflexAgent";
 
 export type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
 type printType = { x: any, y: any }[];
@@ -24,19 +26,23 @@ interface MapEditorInterface {
 // TODO: Map Editor zum laufen bringen
 class MapEditor implements MapEditorInterface {
 
-    constructor(editButtonId: string, saveButtonId: string, toolbarId: string, saveAsButtonId: string, selectId: string, brushRangeId: string, newMapButtonId: string) {
+    constructor(editButtonId: string, saveButtonId: string, toolbarId: string, saveAsButtonId: string, selectId: string, brushRangeId: string, newMapButtonId: string, agentTypeSelectId: string) {
         this.editButton = document.getElementById(editButtonId) as HTMLButtonElement;
         this.saveButton = document.getElementById(saveButtonId) as HTMLButtonElement;
         this.saveAsButton = document.getElementById(saveAsButtonId) as HTMLButtonElement;
         this.mapSelect = document.getElementById(selectId) as HTMLSelectElement;
         this.toolbar = document.getElementById(toolbarId) as HTMLDivElement;
         this.brushRange = document.getElementById(brushRangeId) as HTMLInputElement;
+        this.agentSelect = document.getElementById(agentTypeSelectId) as HTMLSelectElement;
+
         
+
         this.newMapButton = document.getElementById(newMapButtonId) as HTMLButtonElement;
         this.editButton.addEventListener('click', () => this.edit());
         this.saveButton.addEventListener('click', () => this.saveMap());
         this.newMapButton.addEventListener('click', () => this.newMap());
         this.toolbar.addEventListener('click', e => this.selectTool(e as ClickEvent));
+
         this.mapSelect.addEventListener('change', () => {
 
             globals.mapId = this.mapSelect.value;
@@ -45,6 +51,21 @@ class MapEditor implements MapEditorInterface {
             initCanvas();
 
         });
+
+        this.agentSelect.addEventListener('change', () => {
+            console.log(this.agentSelect.value);
+            switch (this.agentSelect.value as AgentType) {
+                case 'random':
+                    globals.agent = RandomAgent;
+                    break;
+                case 'reflex':
+                    globals.agent = ReflexAgent;
+                    break;
+                default:
+                    globals.agent = null;
+            }
+            globals.game.getInstance().readyForRestart = true;
+        });
         this.saveAsButton.addEventListener('click', () => this.saveMap(this.mapSelect.value));
 
         let req = new XMLHttpRequest();
@@ -52,7 +73,6 @@ class MapEditor implements MapEditorInterface {
         req.send(null);
         let savedNames: { name: string, _id: string }[] = JSON.parse(req.responseText);
         for (let name of savedNames) {
-
             let option = document.createElement('option');
             option.value = name._id;
             option.innerText = name.name;
@@ -62,7 +82,7 @@ class MapEditor implements MapEditorInterface {
         this.currentSelection = null;
     }
 
-    newMap(){
+    newMap() {
 
         let width = parseInt(prompt('Width: '));
         let height = parseInt(prompt('Height: '));
@@ -80,11 +100,11 @@ class MapEditor implements MapEditorInterface {
 
         let mapData = {
             statics: new Array(width).fill(new Array(height).fill(null)),
-            lama: {x: 0, y: 0},
+            lama: { x: 0, y: 0 },
             pinky: {},
             inky: {},
             door: [],
-            clyde:{},
+            clyde: {},
             blinky: {},
             home: {},
             borderDrawing: "original",
@@ -162,7 +182,7 @@ class MapEditor implements MapEditorInterface {
                         statics[i][j] = -1;
                         break;
                     case 'Border':
-                        statics[i][j] = 1; 1
+                        statics[i][j] = 1;
                         break;
                     case 'Cookie':
                         statics[i][j] = 2;
@@ -178,22 +198,39 @@ class MapEditor implements MapEditorInterface {
                 }
             }
         }
+        
+        let agentData: AgentType = null;
+        if (globals.agent) {
+            switch (globals.agent.name) {
+                case 'RandomAgent':
+                    agentData = 'random'
+                    break;
+                case 'ReflexAgent':
+                    agentData = 'reflex'
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        
 
         const home = globals.game.getInstance().homeTarget && { x: globals.game.getInstance().homeTarget.x, y: globals.game.getInstance().homeTarget.y };
         let mapData = {
             statics,
-            lama: globals.game.getInstance().lama,
-            pinky: globals.game.getInstance().pinky,
-            inky: globals.game.getInstance().inky,
-            door,
-            clyde: globals.game.getInstance().clyde,
-            blinky: globals.game.getInstance().blinky,
+            lama: globals.game.getInstance().lama?.deserializeCoords(),
+            pinky: globals.game.getInstance().pinky?.deserializeCoords(),
+            inky: globals.game.getInstance().inky?.deserializeCoords(),
+            door: door,
+            clyde: globals.game.getInstance().clyde?.deserializeCoords(),
+            blinky: globals.game.getInstance().blinky?.deserializeCoords(),
             home,
             borderDrawing: globals.borderDrawing,
             dimensions: {
                 gridWidth: globals.dimensions.gridWidth,
                 gridHeight: globals.dimensions.gridHeight
-            }
+            },
+            agentType: agentData
         }
         let request2 = new XMLHttpRequest();
         if (id) {
@@ -221,6 +258,8 @@ class MapEditor implements MapEditorInterface {
                     return;
                 }
             }
+
+    
 
             this.mapSelect.children
             this.mapSelect.appendChild(option);
@@ -280,14 +319,14 @@ class MapEditor implements MapEditorInterface {
             case 'homeWall':
                 insertedItem = new Door(x, halfY / 2);
             case 'delete':
-                if(globals.game.getInstance().map[x][y] instanceof Cookie){
+                if (globals.game.getInstance().map[x][y] instanceof Cookie) {
                     globals.game.getInstance().cookies--;
-                } 
+                }
                 globals.game.getInstance().map[x][y] = null;
                 console.log(globals.game.getInstance().getAllMoveables());
                 globals.game.getInstance().getAllMoveables().forEach((moveable: MoveableInterface) => {
-                    if(moveable){
-                        if(Math.floor(moveable.pos.x) == x && Math.floor(moveable.pos.y) == y){
+                    if (moveable) {
+                        if (Math.floor(moveable.pos.x) == x && Math.floor(moveable.pos.y) == y) {
                             globals.game.getInstance().removeMoveable(moveable);
                         }
                     }
@@ -297,7 +336,7 @@ class MapEditor implements MapEditorInterface {
                 return;
         }
         if (insertedItem) {
-            if(insertedItem instanceof Cookie && !(globals.game.getInstance().map[x][y] instanceof Cookie)){
+            if (insertedItem instanceof Cookie && !(globals.game.getInstance().map[x][y] instanceof Cookie)) {
                 globals.game.getInstance().cookies++;
             }
             globals.game.getInstance().map[x][y] = insertedItem;
@@ -322,31 +361,31 @@ class MapEditor implements MapEditorInterface {
 
         // }
         console.log(isBrushable)
-            if (isBrushable) {
-                let brushPoints = this.getBrushPoints(x, y, +this.brushRange.value);
-                for (let point of brushPoints) {
-                    if (point.x < 0 || point.x >= globals.dimensions.gridWidth || point.y < 0 || point.y >= globals.dimensions.gridHeight) continue;
-                    if (this.currentSelection !== 'delete' && globals.game.getInstance().map[Math.floor(point.x)][Math.floor(point.y)]) continue;
-                    this.insertEntity(Math.floor(point.x), Math.floor(point.y), halfX, halfY);
-                }
-            } else {
-                if (!isOverlapping){
-                    this.insertEntity(x, y, halfX, halfY);
-                }
+        if (isBrushable) {
+            let brushPoints = this.getBrushPoints(x, y, +this.brushRange.value);
+            for (let point of brushPoints) {
+                if (point.x < 0 || point.x >= globals.dimensions.gridWidth || point.y < 0 || point.y >= globals.dimensions.gridHeight) continue;
+                if (this.currentSelection !== 'delete' && globals.game.getInstance().map[Math.floor(point.x)][Math.floor(point.y)]) continue;
+                this.insertEntity(Math.floor(point.x), Math.floor(point.y), halfX, halfY);
             }
-            switch (this.currentSelection) {
-                case 'void':
-                case 'border':
-                case 'delete':
-                case 'homeWall':
-                    globals.game.getInstance().determineBorderTypes();
-                    break;
-                default:
+        } else {
+            if (!isOverlapping) {
+                this.insertEntity(x, y, halfX, halfY);
             }
-        
+        }
+        switch (this.currentSelection) {
+            case 'void':
+            case 'border':
+            case 'delete':
+            case 'homeWall':
+                globals.game.getInstance().determineBorderTypes();
+                break;
+            default:
+        }
+
     }
     getBrushPoints(x: number, y: number, radius: number) {
-        if(radius == 0) return [{x, y}];
+        if (radius == 0) return [{ x, y }];
         let brushPoints = [];
         for (let i = x - radius; i <= x + radius; i++) {
             for (let j = y - radius; j <= y + radius; j++) {
@@ -366,10 +405,11 @@ class MapEditor implements MapEditorInterface {
     toolbar: HTMLDivElement;
     newMapButton: HTMLButtonElement;
     mapSelect: HTMLSelectElement;
+    agentSelect: HTMLSelectElement;
     brushRange: HTMLInputElement;
 
 }
 
-const mapEditor: MapEditorInterface = new MapEditor('editButton', 'saveButton', 'toolbar', "loadButton", "mapSelect", "brushRadius", "newMap");
+const mapEditor: MapEditorInterface = new MapEditor('editButton', 'saveButton', 'toolbar', "loadButton", "mapSelect", "brushRadius", "newMap", "agentSelect");
 
 export default mapEditor;

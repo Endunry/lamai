@@ -38,6 +38,9 @@ window.addEventListener("keydown", function (e) {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
         if (!globals.game.getInstance().started) {
             globals.game.getInstance().start();
+            if(globals.agent){
+                startLogic();
+            }
         }
         e.preventDefault();
     }
@@ -96,8 +99,12 @@ export function initCanvas() {
         p5.draw = async () => {
             p5.background(BACKGROUND);
             globals.game.getInstance().draw(p5);
-            if (globals.game.getInstance().started) {
-                await globals.game.getInstance().update();
+            
+            if(!(globals.agent)){
+                if (globals.game.getInstance().started) {
+                    await globals.game.getInstance().update();
+                }
+            
             }
 
         }
@@ -109,6 +116,18 @@ export function initCanvas() {
 }
 
 
+async function startLogic(){
+
+    while(true){
+        await globals.game.getInstance().update();
+        if(globals.game.getInstance().readyForRestart){
+            break;
+        }
+    }
+
+    initCanvas();
+
+}
 
 
 

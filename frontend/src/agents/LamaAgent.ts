@@ -12,6 +12,7 @@ class LamaAgent extends Lama {
     size: number;
     constructor( atPosition: Vector, size: number) {
         super(atPosition, size);
+        this.sizeMult = 1.5;
     }
 
     die(){

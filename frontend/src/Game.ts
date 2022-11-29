@@ -15,6 +15,7 @@ import { initCanvas } from ".";
 
 export interface GameInterface {
     win(): void;
+    lose(): void;
     removeMoveable(moveable: MoveableInterface): unknown;
     map: (Entity | undefined)[][];
     blinky: Blinky;
@@ -26,6 +27,7 @@ export interface GameInterface {
     startTime: Date;
     started: boolean;
     cookies: number;
+    readyForRestart: boolean;
     init(): void;
     loadMap(id: string): void;
     determineBorderTypes(): void;
@@ -46,6 +48,15 @@ export class Game implements GameInterface {
     }
     win(): void {
         alert(`Du hast gewonnen! Punktzahl; ${this.lama.points}`);
+        this.readyForRestart = true;
+        this.started = false;
+        initCanvas();
+    }
+
+    lose(): void{
+        alert(`Du bist gestorben! Punktzahl; ${this.lama.points}`);
+        this.readyForRestart = true;
+        this.started = false;
         initCanvas();
     }
     removeMoveable(moveable: MoveableInterface): void {
@@ -154,6 +165,16 @@ export class Game implements GameInterface {
         if(mapData.home){
         this.homeTarget = new Vector(mapData.home.x, mapData.home.y);
         }
+
+        let agentSelect = document.querySelector('#agentSelect') as HTMLSelectElement;
+        for (let opt in agentSelect.children) {
+            console.log((agentSelect.children[opt] as HTMLOptionElement).value);
+            if ((agentSelect.children[opt] as HTMLOptionElement).value+"" == mapData.agentType+"") {
+                (agentSelect.children[opt] as HTMLOptionElement).selected = true;
+                break;
+            }
+        }
+
         this.determineBorderTypes()
     }
 
@@ -218,7 +239,7 @@ export class Game implements GameInterface {
     started: boolean;
     cookies: number = 0;
     scoreElement: HTMLElement;
-
+    readyForRestart: boolean = false;
     // "Non Interface Functions+members"
 
     checkTimeTable(ghosts: Array<Gertrud>) {
@@ -272,6 +293,8 @@ export class Game implements GameInterface {
         }
         return -1;
     }
+
+
 
 
 }

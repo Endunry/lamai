@@ -56,7 +56,7 @@ export class Cookie extends Collectible{
     }
 
         onCollision(other: EntityInterface) {
-            if (other.constructor.name == "Lama") {
+            if (other.constructor.name == "Lama" || other.constructor.name == "LamaAgent") {
                 (other as LamaInterface).points++;
                 globals.game.getInstance().map[this.pos.x][this.pos.y] = null;
                 globals.game.getInstance().cookies--;
@@ -70,7 +70,7 @@ export class Power extends Collectible{
     }
 
         onCollision(other: EntityInterface) {
-            if (other.constructor.name == "Lama") {
+            if (other.constructor.name == "Lama" || other.constructor.name == "LamaAgent") {
                 (other as LamaInterface).points+= 50;
                 globals.game.getInstance().map[this.pos.x][this.pos.y] = null;
                 globals.game.getInstance().lama.powerUp();

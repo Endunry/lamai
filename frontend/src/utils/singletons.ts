@@ -79,7 +79,7 @@ export let globals = {
             return globals.game.instance;
         },
         createInstance: () => {
-            if(globals.isAgent){
+            if(globals.agent){
                 globals.game.instance = new AgentGame(new globals.agent());
             }else{
                 globals.game.instance = new Game();
@@ -89,7 +89,6 @@ export let globals = {
     lives: config.player.lives,
     borderDrawing: 'original' as 'original' | 'simple',
     mapId: config.defaultMap,
-    agent: RandomAgent,
-    isAgent: true,
+    agent: RandomAgent
 }
 
