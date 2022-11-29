@@ -9,9 +9,13 @@ import Door from "./BuildBlocks/door";
 import { Cookie, Power } from "./Entities/collectible";
 import Border from "./BuildBlocks/borders";
 import { mapData } from './types/maps';
+import Moveable, { MoveableInterface } from "./Entities/moveable";
+import { initCanvas } from ".";
 
 
-interface GameInterface {
+export interface GameInterface {
+    win(): void;
+    removeMoveable(moveable: MoveableInterface): unknown;
     map: (Entity | undefined)[][];
     blinky: Blinky;
     pinky: Blinky;
@@ -21,9 +25,11 @@ interface GameInterface {
     homeTarget: Vector;
     startTime: Date;
     started: boolean;
+    cookies: number;
     init(): void;
     loadMap(id: string): void;
     determineBorderTypes(): void;
+    getAllMoveables(): MoveableInterface[];
     start(): void;
     restart(): void;
     update(): void;
@@ -32,13 +38,42 @@ interface GameInterface {
 }
 const PORT = 1234;
 
-class Game implements GameInterface {
+export class Game implements GameInterface {
     constructor() {
         this.map = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight));
         this.started = false;
+        this.scoreElement = document.querySelector('#points span');
+    }
+    win(): void {
+        alert(`Du hast gewonnen! Punktzahl; ${this.lama.points}`);
+        initCanvas();
+    }
+    removeMoveable(moveable: MoveableInterface): void {
+        switch (moveable.constructor.name) {
+            case 'Blinky':
+                this.blinky = undefined;
+                break;
+            case 'Pinky':
+                this.pinky = undefined;
+                break;
+            case 'Inky':
+                this.inky = undefined;
+                break;
+            case 'Clyde':
+                this.clyde = undefined;
+                break;
+            case 'Lama':
+                this.lama = undefined;
+                break;
+        }
     }
 
-    update(): void {
+    getAllMoveables(): Array<MoveableInterface> {
+        let moveables: Array<MoveableInterface> = [this.lama, this.blinky, this.inky, this.pinky, this.clyde]
+        return moveables;
+    }   
+
+    async update(): Promise<void> {
         this.lama && this.lama.update();
         this.inky && this.inky.update();
         this.pinky && this.pinky.update();
@@ -68,6 +103,7 @@ class Game implements GameInterface {
     }
 
     loadMap(): void {
+        this.cookies = 0;
         this.map = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight));
         this.started = false;
         // let mapData = mapdatainit;   
@@ -75,7 +111,6 @@ class Game implements GameInterface {
         request.open('GET', `http://localhost:${PORT}/getMap/${globals.mapId}`, false);
         request.send(null);
         let mapData = JSON.parse(request.responseText).data as mapData;
-        console.log(mapData, globals.dimensions)
         if (mapData.statics) {
 
             for (let x = 0; x < globals.dimensions.gridWidth; x++) {
@@ -88,6 +123,7 @@ class Game implements GameInterface {
                             this.map[x][y] = new Border(new Vector(x, y));
                             break;
                         case 2:
+                            this.cookies++;
                             this.map[x][y] = new Cookie(x, y);
                             break;
                         case 3:
@@ -129,6 +165,7 @@ class Game implements GameInterface {
     start(): void {
         this.startTime = new Date();
         this.started = true;
+
         this.inky && this.inky.start();
         this.pinky && this.pinky.start();
         this.clyde && this.clyde.start();
@@ -140,15 +177,22 @@ class Game implements GameInterface {
     }
 
     draw(p5: P5): void {
-        this.map && this.map.forEach(col => col && col.forEach(item => item && item.draw(p5)));
+        if(!this.started || this.cookies !== 0){
+            this.map && this.map.forEach(col => col && col.forEach(item => item && item.draw(p5)));
+            this.lama && this.lama.listenForKeys(p5);
+            if(this.lama){
+                this.scoreElement.innerHTML = this.lama.points.toString();
+            }
+        }
         this.lama && this.lama.draw(p5);
-        this.lama && this.lama.listenForKeys(p5);
-        this.lama && p5.text(`Punkte: ${this.lama.points}`, 0, 0, p5.width, config.gridSize + 5);
-        this.inky && this.inky.draw(p5);
         this.pinky && this.pinky.draw(p5);
         this.clyde && this.clyde.draw(p5);
+        this.inky && this.inky.draw(p5);
         this.blinky && this.blinky.draw(p5);
         if (globals.debug) this.drawDebug(p5);
+        if (this.cookies === 0 && this.started) { // Win the game after drawing everything
+            this.win();
+        }
     }
 
     determineBorderTypes() {
@@ -172,6 +216,8 @@ class Game implements GameInterface {
     homeTarget: Vector;
     startTime: Date;
     started: boolean;
+    cookies: number = 0;
+    scoreElement: HTMLElement;
 
     // "Non Interface Functions+members"
 
@@ -213,6 +259,8 @@ class Game implements GameInterface {
         return [top, right, bottom, left, top_right, bottom_right, bottom_left, top_left];
     }
 
+
+
     getBorder(borders: Array<Array<Entity>>, x: number, y: number): number {
         if (x >= 0 && x < globals.dimensions.gridWidth && y >= 0 && y < globals.dimensions.gridHeight) {
             if (borders[x][y] instanceof Border) {
@@ -231,17 +279,3 @@ class Game implements GameInterface {
 
 
 
-
-const game = {
-    in: null as null | GameInterface,
-    createInstance() {
-        this.instance = new Game();
-    },
-    getInstance() {
-        if (!this.instance) {
-            this.createInstance();
-        }
-        return this.instance as GameInterface;
-    }}
-
-export default game;

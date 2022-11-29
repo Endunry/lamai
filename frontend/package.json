@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "npx http-server -s",
+    "start": "npx http-server -s -c-1 -p 8080",
     "build": "npx webpack --config webpack.config.js"
   },
   "repository": {

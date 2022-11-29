@@ -1,7 +1,6 @@
 import P5, { Color, Vector } from "p5";
 import { LAMA_SMOOTHNESS } from "..";
-import game from "../Game";
-import { config } from "../utils/singletons";
+import { config, globals } from "../utils/singletons";
 import Entity, { EntityInterface } from "./entity";
 import { LamaInterface } from "./lama";
 
@@ -59,7 +58,8 @@ export class Cookie extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points++;
-                game.getInstance().map[this.pos.x][this.pos.y] = null;
+                globals.game.getInstance().map[this.pos.x][this.pos.y] = null;
+                globals.game.getInstance().cookies--;
             }
         }
 }
@@ -72,12 +72,12 @@ export class Power extends Collectible{
         onCollision(other: EntityInterface) {
             if (other.constructor.name == "Lama") {
                 (other as LamaInterface).points+= 50;
-                game.getInstance().map[this.pos.x][this.pos.y] = null;
-                game.getInstance().lama.powerUp();
-                game.getInstance().pinky && game.getInstance().pinky.flee()
-                game.getInstance().inky && game.getInstance().inky.flee()
-                game.getInstance().clyde && game.getInstance().clyde.flee()
-                game.getInstance().blinky && game.getInstance().blinky.flee()
+                globals.game.getInstance().map[this.pos.x][this.pos.y] = null;
+                globals.game.getInstance().lama.powerUp();
+                globals.game.getInstance().pinky && globals.game.getInstance().pinky.flee()
+                globals.game.getInstance().inky && globals.game.getInstance().inky.flee()
+                globals.game.getInstance().clyde && globals.game.getInstance().clyde.flee()
+                globals.game.getInstance().blinky && globals.game.getInstance().blinky.flee()
             }
         }
 }

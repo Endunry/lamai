@@ -1,4 +1,8 @@
 import P5 from "p5";
+import { AgentGame } from "../AgentGame";
+import { Agent } from "../agents/Agent";
+import { Game } from "../Game";
+import RandomAgent from '../agents/RandomAgent';
 
 export type imagesType = {
     pinky: null | P5.Image,
@@ -28,11 +32,18 @@ export function getImages(): imagesType {
     return images;
 }
 
+const cookies = document.cookie.split(';');
+const cookieMapId = cookies.find(cookie => cookie.includes('mapId'));
+let mapId : string | null = null;
+if(cookieMapId) {
+    mapId = cookieMapId.split('=')[1];
+}
+
 export const config = {
     init: {
         debug: false,
     },
-    defaultMap: "635143ded482a24c597f959d",
+    defaultMap: mapId ||  "635143ded482a24c597f959d",
     gridSize: 20,
     speed:{
         val: 1, // speed.val is a arbitrary parameter
@@ -59,8 +70,26 @@ export let globals = {
         gridWidth: 28,
         gridHeight: 36
     },
+    game: {
+        instance: null as null | Game | AgentGame,
+        getInstance: () => {
+            if(!globals.game.instance) {
+                globals.game.createInstance();
+            }
+            return globals.game.instance;
+        },
+        createInstance: () => {
+            if(globals.isAgent){
+                globals.game.instance = new AgentGame(new globals.agent());
+            }else{
+                globals.game.instance = new Game();
+            }
+        }
+    },
     lives: config.player.lives,
     borderDrawing: 'original' as 'original' | 'simple',
     mapId: config.defaultMap,
+    agent: RandomAgent,
+    isAgent: true,
 }
 

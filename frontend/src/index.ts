@@ -1,4 +1,3 @@
-import game from "./Game";
 import { Vector } from "p5";
 import P5 from "p5";
 import Fraction from "./utils/fraction";
@@ -17,7 +16,7 @@ export let WIDTH = 0;
 export let HEIGHT = 0;
 export let CANVAS_OBJ: P5.Renderer | null;
 
-let p5Sketch: P5 | null = null;
+export let p5Sketch: P5 | null = null;
 export const PORT = 1234;
 
 export let HOME_TARGET: Vector = null;
@@ -27,7 +26,6 @@ const LAMA_SPEED = 10 // How many grids / second
 const GERTRUD_SPEED = 10;
 
 export const LAMA_SMOOTHNESS = new Fraction(1, LAMA_SPEED);
-console.log(LAMA_SMOOTHNESS)
 export const GERTRUD_SMOOTHNESS = new Fraction(1,  GERTRUD_SPEED);
 
 document.getElementById("debugMode").setAttribute("checked", !config.init.debug+"");
@@ -38,8 +36,8 @@ document.getElementById("debugMode").addEventListener("change", () => {
 
 window.addEventListener("keydown", function (e) {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-        if (!game.getInstance().started) {
-            game.getInstance().start();
+        if (!globals.game.getInstance().started) {
+            globals.game.getInstance().start();
         }
         e.preventDefault();
     }
@@ -53,7 +51,6 @@ export function initCanvas() {
     req.open('GET', `http://localhost:${PORT}/getDimensions/${globals.mapId}`, false);
     req.send(null);
     let dimensions = JSON.parse(req.responseText);
-    console.log(dimensions);
     globals.dimensions = dimensions;
 
     WIDTH = globals.dimensions.gridWidth * config.gridSize;
@@ -92,17 +89,15 @@ export function initCanvas() {
             p5.background(BACKGROUND);
 
 
-            game.createInstance();
-            game.getInstance().init();
+            globals.game.createInstance();
+            globals.game.getInstance().init();
         }
 
-        p5.draw = () => {
+        p5.draw = async () => {
             p5.background(BACKGROUND);
-
-            game.getInstance().draw(p5);
-
-            if (game.getInstance().started) {
-                game.getInstance().update();
+            globals.game.getInstance().draw(p5);
+            if (globals.game.getInstance().started) {
+                await globals.game.getInstance().update();
             }
 
         }
@@ -112,6 +107,7 @@ export function initCanvas() {
     p5Sketch = new P5(sketch);
 
 }
+
 
 
 

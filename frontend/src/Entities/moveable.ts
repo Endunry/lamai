@@ -4,7 +4,6 @@ import { LAMA_SMOOTHNESS } from '../index';
 import Door from '../BuildBlocks/door';
 import Fraction from "../utils/fraction";
 import { config, globals } from "../utils/singletons";
-import game from "../Game";
 
 export interface MoveableInterface extends EntityInterface {
     dir: Vector | null;
@@ -16,6 +15,7 @@ export interface MoveableInterface extends EntityInterface {
     points: number;
     logicalPosition: Vector;
     update: () => void;
+    isInGrid: () => boolean;
 }   
 
 class Moveable extends Entity implements MoveableInterface {
@@ -55,7 +55,7 @@ class Moveable extends Entity implements MoveableInterface {
         if (x < 0 || x >= globals.dimensions.gridWidth || y < 0 || y >= globals.dimensions.gridHeight) {
             return false;
         }
-        let objectToCheck = game.getInstance().map[x] && game.getInstance().map[x][y];
+        let objectToCheck = globals.game.getInstance().map[x] && globals.game.getInstance().map[x][y];
         if (!objectToCheck) return false;
         if (objectToCheck && objectToCheck !== this && dirtocheck === this.dir) {
             objectToCheck.onCollision(this);
@@ -65,8 +65,6 @@ class Moveable extends Entity implements MoveableInterface {
                 return true;
             case "Door":
                 return (objectToCheck as Door).getLegalDirection().heading() != dirtocheck.heading();
-            case "Cookie":
-                this.points++;
             default:
                 return false;
         }
@@ -74,7 +72,7 @@ class Moveable extends Entity implements MoveableInterface {
 
 
     move(){
-        if(!game.getInstance().started) return;
+        if(!globals.game.getInstance().started) return;
         if(!this.dir) return;
         this.pos.add(this.dir.copy().mult(this.smoothness.toFloat()));
         this.movementFraction = this.movementFraction.add(this.smoothness);

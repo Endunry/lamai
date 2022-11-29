@@ -32,7 +32,6 @@ app.get("/getSavedNames", async (req, res) => {
 
 app.get("/getDimensions/:id", async (req, res) => {
     let data = await MapModel.findById(req.params.id, ).exec();
-    console.log(data.data);
     let response = {
         gridWidth: data.data.dimensions?.gridWidth || 28,
         gridHeight: data.data.dimensions?.gridHeight || 36

@@ -3,17 +3,17 @@ import { Vector } from 'p5';
 import P5 from 'p5';
 import { config, getImages, globals } from '../utils/singletons';
 import { initCanvas } from "..";
+import { GameMove } from "../types/game";
 
 export interface LamaInterface extends MoveableInterface{
     size: number;
     die: () => void;
     powerUp: () => void;
-    listenForKeys: (p5: P5) => void;
+    listenForKeys: (p5: P5 | GameMove) => void;
 }
 
 class Lama extends Moveable implements LamaInterface {
     size: number;
-    p5: P5;
     constructor( atPosition: Vector, size: number) {
         super(atPosition.x, atPosition.y);
         (atPosition);
@@ -80,7 +80,11 @@ class Lama extends Moveable implements LamaInterface {
         };
     }
 
-    listenForKeys(p5: P5) {
+    listenForKeys(p5: P5 | GameMove) {
+        if(!(p5 instanceof P5)){
+            console.warn("You call a AgentFunction with a GameMove in a non-Agent Class..., you need to give a p5 instance to the function");
+            return;
+        }
         const keys = this.getKeys(p5);
         const power = 1;
         if(keys.up){

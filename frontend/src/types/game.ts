@@ -1,0 +1,1 @@
+export type GameMove = 'up' | 'down' | 'left' | 'right' | 'stay';

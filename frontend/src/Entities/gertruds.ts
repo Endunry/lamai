@@ -11,7 +11,6 @@ import { GERTRUD_SMOOTHNESS } from "..";
 import Moveable, { MoveableInterface } from "./moveable";
 import { config, getImages, globals } from '../utils/singletons';
 import { Image } from 'p5';
-import game from "../Game";
 
 let FLEESTART: Date;
 
@@ -56,7 +55,7 @@ class Gertrud extends Moveable implements GertrudInterface {
         this.size = config.gridSize;
         this.fleeImg = getImages().frightened;
         this.eatenImg = getImages().eaten;
-        this.state = "idle"; // idle (only at the start of the game.getInstance()), escaping (escaping the home),  scatter, chase, frightened, eaten
+        this.state = "idle"; // idle (only at the start of the globals.game.getInstance()), escaping (escaping the home),  scatter, chase, frightened, eaten
         this.target = null; // the target tile (determined by the state and type of ghost)
         this.image = getImages()[type] || getImages().clyde;
         this.scatterTarget = null;
@@ -112,12 +111,12 @@ class Gertrud extends Moveable implements GertrudInterface {
         switch (this.state) {
 
             case "escaping":
-                if (game.getInstance().homeTarget) {
-                    if (this.logicalPosition.dist(game.getInstance().homeTarget) < 0.5) {
+                if (globals.game.getInstance().homeTarget) {
+                    if (this.logicalPosition.dist(globals.game.getInstance().homeTarget) < 0.5) {
                         this.state = "scatter";
                         return this.scatterTarget;
                     }
-                    return game.getInstance().homeTarget;
+                    return globals.game.getInstance().homeTarget;
                 }
             case "scatter":
                 return this.scatterTarget;
@@ -139,12 +138,12 @@ class Gertrud extends Moveable implements GertrudInterface {
                 }
                 return this.frightenedTarget();
             case "eaten":
-                if (game.getInstance().homeTarget) {
-                    if (this.logicalPosition.dist(game.getInstance().homeTarget) < 0.5) {
+                if (globals.game.getInstance().homeTarget) {
+                    if (this.logicalPosition.dist(globals.game.getInstance().homeTarget) < 0.5) {
                         this.state = this.queuedState;
                         return this.calculateTarget();
                     }
-                    return game.getInstance().homeTarget;
+                    return globals.game.getInstance().homeTarget;
                 }
         }
     }
@@ -158,7 +157,7 @@ class Gertrud extends Moveable implements GertrudInterface {
     }
 
     eatenTarget() {
-        return game.getInstance().homeTarget;
+        return globals.game.getInstance().homeTarget;
     }
 
     getPossibleDirections() {
@@ -175,15 +174,15 @@ class Gertrud extends Moveable implements GertrudInterface {
 
     move() {
         super.move();
-        // Check if we collide with game.getInstance().lama
+        // Check if we collide with globals.game.getInstance().lama
 
         // do a rect collision check
-        if (game.getInstance().lama.pos.x < this.pos.x + 1 && game.getInstance().lama.pos.x + 1 > this.pos.x && game.getInstance().lama.pos.y < this.pos.y + 1 && game.getInstance().lama.pos.y + 1 > this.pos.y) {
+        if (globals.game.getInstance().lama.pos.x < this.pos.x + 1 && globals.game.getInstance().lama.pos.x + 1 > this.pos.x && globals.game.getInstance().lama.pos.y < this.pos.y + 1 && globals.game.getInstance().lama.pos.y + 1 > this.pos.y) {
             // collision detected!
             if (this.state == "frightened") {
                 this.eaten();
             } else if (this.state != "eaten") {
-                game.getInstance().lama.die();
+                globals.game.getInstance().lama.die();
             }
         }
     }
@@ -206,7 +205,7 @@ class Gertrud extends Moveable implements GertrudInterface {
         p5.push();
         p5.translate(this.pos.x * config.gridSize + this.size / 2, this.pos.y * config.gridSize + this.size / 2);
         p5.noStroke();
-        // flip the game.getInstance().lama if he is moving left
+        // flip the globals.game.getInstance().lama if he is moving left
         if (this.dir && (this.dir.x < 0 || this.flipped)) {
             if (this.dir.x > 0) {
                 this.flipped = false;
@@ -275,10 +274,10 @@ export class Pinky extends Gertrud {
     }
 
     chaseTarget() {
-        if (game.getInstance().lama.dir.heading() == -HALF_PI) {
-            return new Vector(game.getInstance().lama.logicalPosition.x - 4, game.getInstance().lama.logicalPosition.y - 4);
+        if (globals.game.getInstance().lama.dir.heading() == -HALF_PI) {
+            return new Vector(globals.game.getInstance().lama.logicalPosition.x - 4, globals.game.getInstance().lama.logicalPosition.y - 4);
         } else {
-            return game.getInstance().lama.logicalPosition.copy().add(game.getInstance().lama.dir.copy().mult(4));
+            return globals.game.getInstance().lama.logicalPosition.copy().add(globals.game.getInstance().lama.dir.copy().mult(4));
         }
     }
 }
@@ -291,7 +290,7 @@ export class Blinky extends Gertrud {
     }
 
     chaseTarget() {
-        return game.getInstance().lama.pos;
+        return globals.game.getInstance().lama.pos;
     }
 }
 
@@ -303,7 +302,7 @@ export class Inky extends Gertrud {
     }
 
     chaseTarget() {
-        return new Vector(2 * game.getInstance().lama.logicalPosition.x - game.getInstance().blinky.logicalPosition.x, 2 * game.getInstance().lama.logicalPosition.y - game.getInstance().blinky.logicalPosition.y);
+        return new Vector(2 * globals.game.getInstance().lama.logicalPosition.x - globals.game.getInstance().blinky.logicalPosition.x, 2 * globals.game.getInstance().lama.logicalPosition.y - globals.game.getInstance().blinky.logicalPosition.y);
     }
 }
 
@@ -315,10 +314,10 @@ export class Clyde extends Gertrud {
     }
 
     chaseTarget() {
-        if (game.getInstance().lama.logicalPosition.dist(this.logicalPosition) < 8) {
+        if (globals.game.getInstance().lama.logicalPosition.dist(this.logicalPosition) < 8) {
             return this.scatterTarget;
         } else {
-            return game.getInstance().lama.logicalPosition;
+            return globals.game.getInstance().lama.logicalPosition;
         }
     }
 }
