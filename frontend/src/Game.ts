@@ -8,9 +8,12 @@ import Void from './BuildBlocks/void';
 import Door from "./BuildBlocks/door";
 import { Cookie, Power } from "./Entities/collectible";
 import Border from "./BuildBlocks/borders";
-import { mapData } from './types/maps';
+import { AgentType, mapData } from './types/maps';
 import Moveable, { MoveableInterface } from "./Entities/moveable";
 import { initCanvas } from ".";
+import RandomAgent from "./agents/RandomAgent";
+import ReflexAgent from "./agents/ReflexAgent";
+import { AgentDecoder } from './utils/AgentDecoder';
 
 
 export interface GameInterface {
@@ -114,16 +117,21 @@ export class Game implements GameInterface {
     }
 
     loadMap(): void {
+
+        // Reset some variables
         this.cookies = 0;
         this.map = new Array(globals.dimensions.gridWidth).fill(0).map(() => new Array(globals.dimensions.gridHeight));
         this.started = false;
-        // let mapData = mapdatainit;   
+
+
+        
         let request = new XMLHttpRequest();
         request.open('GET', `http://localhost:${PORT}/getMap/${globals.mapId}`, false);
         request.send(null);
         let mapData = JSON.parse(request.responseText).data as mapData;
-        if (mapData.statics) {
 
+
+        if (mapData.statics) {
             for (let x = 0; x < globals.dimensions.gridWidth; x++) {
                 for (let y = 0; y < globals.dimensions.gridHeight; y++) {
                     switch (mapData.statics[x][y]) {
@@ -145,36 +153,44 @@ export class Game implements GameInterface {
                 }
             }
         }
+
         mapData.door?.forEach((door: { x: number; y: number; }) => {
             this.map[Math.floor(door.x)][Math.floor(door.y)] = new Door(door.x, door.y);
         });
 
         this.lama = new Lama(new Vector(mapData.lama.x, mapData.lama.y), config.gridSize);
+
         if(mapData.pinky){
             this.pinky = new Pinky(mapData.pinky.x, mapData.pinky.y);
         }
+
         if(mapData.inky){
         this.inky = new Inky(mapData.inky.x, mapData.inky.y,);
         }  
+
         if(mapData.clyde){
         this.clyde = new Clyde(mapData.clyde.x, mapData.clyde.y);
         }
+
         if(mapData.blinky){
         this.blinky = new Blinky(mapData.blinky.x, mapData.blinky.y);
         }
+
         if(mapData.home){
         this.homeTarget = new Vector(mapData.home.x, mapData.home.y);
         }
-
+        
+        globals.agent = AgentDecoder.agentTypeToClass(mapData.agentType)
+        console.log(globals.agent);
         let agentSelect = document.querySelector('#agentSelect') as HTMLSelectElement;
         for (let opt in agentSelect.children) {
-            console.log((agentSelect.children[opt] as HTMLOptionElement).value);
-            if ((agentSelect.children[opt] as HTMLOptionElement).value+"" == mapData.agentType+"") {
+            const optVal = (agentSelect.children[opt] as HTMLOptionElement).value + "";
+            console.log(optVal);
+            if (optVal == mapData.agentType+"") {
                 (agentSelect.children[opt] as HTMLOptionElement).selected = true;
                 break;
             }
         }
-
         this.determineBorderTypes()
     }
 

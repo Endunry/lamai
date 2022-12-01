@@ -15,6 +15,7 @@ const PORT = 1234;
 export class AgentGame extends Game {
     constructor(agent: AgentInterface) {
         super();
+        console.log("AgentGame constructed")
         this.agent = agent;
     }
 
@@ -48,7 +49,6 @@ export class AgentGame extends Game {
 
     async update(): Promise<void> {
         await super.update();
-
         if(this.lama.isInGrid()){
             await this.agent.sense(this);
             let move = this.agent.act();

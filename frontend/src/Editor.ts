@@ -12,6 +12,9 @@ import { config, globals } from "./utils/singletons";
 import { MoveableInterface } from './Entities/moveable';
 import RandomAgent from "./agents/RandomAgent";
 import ReflexAgent from "./agents/ReflexAgent";
+import { AgentDecoder } from "./utils/AgentDecoder";
+
+// REFACTOR: Refactor Editor into multiple classes pls :)
 
 export type ClickEvent = MouseEvent & { target: HTMLCanvasElement | HTMLButtonElement };
 type printType = { x: any, y: any }[];
@@ -23,7 +26,6 @@ interface MapEditorInterface {
     mouseListener(event?: ClickEvent): void;
     currentSelection: string | null;
 }
-// TODO: Map Editor zum laufen bringen
 class MapEditor implements MapEditorInterface {
 
     constructor(editButtonId: string, saveButtonId: string, toolbarId: string, saveAsButtonId: string, selectId: string, brushRangeId: string, newMapButtonId: string, agentTypeSelectId: string) {
@@ -35,11 +37,15 @@ class MapEditor implements MapEditorInterface {
         this.brushRange = document.getElementById(brushRangeId) as HTMLInputElement;
         this.agentSelect = document.getElementById(agentTypeSelectId) as HTMLSelectElement;
 
-        
+
 
         this.newMapButton = document.getElementById(newMapButtonId) as HTMLButtonElement;
         this.editButton.addEventListener('click', () => this.edit());
-        this.saveButton.addEventListener('click', () => this.saveMap());
+        this.saveButton.addEventListener('click', () =>
+
+            this.saveMap()
+
+        );
         this.newMapButton.addEventListener('click', () => this.newMap());
         this.toolbar.addEventListener('click', e => this.selectTool(e as ClickEvent));
 
@@ -53,18 +59,10 @@ class MapEditor implements MapEditorInterface {
         });
 
         this.agentSelect.addEventListener('change', () => {
-            console.log(this.agentSelect.value);
-            switch (this.agentSelect.value as AgentType) {
-                case 'random':
-                    globals.agent = RandomAgent;
-                    break;
-                case 'reflex':
-                    globals.agent = ReflexAgent;
-                    break;
-                default:
-                    globals.agent = null;
+            globals.agent = AgentDecoder.agentTypeToClass(this.agentSelect.value as AgentType);
+            if (globals.game.getInstance().started) {
+                globals.game.getInstance().readyForRestart = true;
             }
-            globals.game.getInstance().readyForRestart = true;
         });
         this.saveAsButton.addEventListener('click', () => this.saveMap(this.mapSelect.value));
 
@@ -198,22 +196,10 @@ class MapEditor implements MapEditorInterface {
                 }
             }
         }
-        
-        let agentData: AgentType = null;
-        if (globals.agent) {
-            switch (globals.agent.name) {
-                case 'RandomAgent':
-                    agentData = 'random'
-                    break;
-                case 'ReflexAgent':
-                    agentData = 'reflex'
-                    break;
-                default:
-                    break;
-            }
-        }
 
-        
+
+        let agentData = AgentDecoder.agentClassToAgentType(globals.agent);
+
 
         const home = globals.game.getInstance().homeTarget && { x: globals.game.getInstance().homeTarget.x, y: globals.game.getInstance().homeTarget.y };
         let mapData = {
@@ -259,7 +245,7 @@ class MapEditor implements MapEditorInterface {
                 }
             }
 
-    
+
 
             this.mapSelect.children
             this.mapSelect.appendChild(option);

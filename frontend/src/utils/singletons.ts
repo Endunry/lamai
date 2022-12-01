@@ -3,6 +3,8 @@ import { AgentGame } from "../AgentGame";
 import { Agent } from "../agents/Agent";
 import { Game } from "../Game";
 import RandomAgent from '../agents/RandomAgent';
+import ReflexAgent from './../agents/ReflexAgent';
+import ReplanningAgent from './../agents/ReplanningAgent';
 
 export type imagesType = {
     pinky: null | P5.Image,
@@ -32,24 +34,19 @@ export function getImages(): imagesType {
     return images;
 }
 
-const cookies = document.cookie.split(';');
-const cookieMapId = cookies.find(cookie => cookie.includes('mapId'));
-let mapId : string | null = null;
-if(cookieMapId) {
-    mapId = cookieMapId.split('=')[1];
-}
+
 
 export const config = {
     init: {
         debug: false,
     },
-    defaultMap: mapId ||  "635143ded482a24c597f959d",
+    defaultMap: "6387e3e8182ee41b6b8bada2",
     gridSize: 20,
     speed:{
         val: 1, // speed.val is a arbitrary parameter
         pacman: {
             normal: 0.8,
-            frightened: 0.9
+             frightened: 0.9
         },
         ghosts: {
             normal: 0.75,
@@ -89,6 +86,7 @@ export let globals = {
     lives: config.player.lives,
     borderDrawing: 'original' as 'original' | 'simple',
     mapId: config.defaultMap,
-    agent: RandomAgent
+    agent: ReplanningAgent as null | typeof Agent
 }
 
+console.log(globals.agent);

@@ -11,6 +11,10 @@ import PinkyImg from './assets/Gertrud_Pinky.png';
 import FrightenedImg from './assets/Gertrud_Frightened.png';
 import EatenImg from './assets/Gertrud_Eaten.png';
 import mapEditor, { ClickEvent } from './Editor';
+import { AgentType } from "./types/maps";
+import ReflexAgent from './agents/ReflexAgent';
+import RandomAgent from "./agents/RandomAgent";
+import { AgentDecoder } from './utils/AgentDecoder';
 
 export let WIDTH = 0;
 export let HEIGHT = 0;
@@ -102,7 +106,7 @@ export function initCanvas() {
             
             if(!(globals.agent)){
                 if (globals.game.getInstance().started) {
-                    await globals.game.getInstance().update();
+                   await globals.game.getInstance().update();
                 }
             
             }
@@ -128,6 +132,7 @@ async function startLogic(){
     initCanvas();
 
 }
+
 
 
 

@@ -9,7 +9,7 @@ export interface mapData{
     home: Coordinates | null;
     borderDrawing?: 'original' | 'simple';
     dimensions?: Dimensions;
-    agentType?: string;
+    agentType?: AgentType;
 
 }
 
@@ -18,7 +18,7 @@ export interface Dimensions{
     gridHeight: number;
 }
 
-export type AgentType = 'random' | 'reflex' | null;
+export type AgentType = 'random' | 'reflex' | 'replanning' | null;
 
 export interface Coordinates {
     x: number;

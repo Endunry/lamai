@@ -8,6 +8,7 @@ import { GameMove } from "../types/game";
 export interface LamaInterface extends MoveableInterface{
     size: number;
     powerUp: () => void;
+    getPossibleDirections: () => Vector[];
     listenForKeys: (p5: P5 | GameMove) => void;
 }
 
@@ -36,6 +37,18 @@ class Lama extends Moveable implements LamaInterface {
         p5.ellipse(this.pos.x * config.gridSize, this.pos.y * config.gridSize, this.size / 2, this.size / 2);
         p5.fill(255, 255, 0);
         p5.ellipse(this.logicalPosition.x * config.gridSize, this.logicalPosition.y * config.gridSize, this.size / 2, this.size / 2);
+    }
+
+    getPossibleDirections() {
+        let possibleDirections: Vector[] = [];
+        const s = 1;
+        for (let dir of [new Vector(s, 0), new Vector(-s, 0), new Vector(0, s), new Vector(0, -s)]) {
+
+            if (this.checkForCollision(dir)) continue;
+            if (this.dir.copy().mult(-1).equals(dir)) continue;
+            possibleDirections.push(dir);
+        }
+        return possibleDirections;
     }
 
     draw(p5: P5) {

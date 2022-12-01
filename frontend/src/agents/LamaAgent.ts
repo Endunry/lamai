@@ -10,20 +10,32 @@ import { GameMove } from "../types/game";
 
 class LamaAgent extends Lama {
     size: number;
-    constructor( atPosition: Vector, size: number) {
+    constructor(atPosition: Vector, size: number) {
         super(atPosition, size);
         this.sizeMult = 1.5;
     }
 
-    die(){
+    die() {
         initCanvas();
     }
 
-    static createLamaAgent(lama: LamaInterface){
+
+    getPossibleDirections() {
+        let possibleDirections: Vector[] = [];
+        const s = 1;
+        for (let dir of [new Vector(s, 0), new Vector(-s, 0), new Vector(0, s), new Vector(0, -s)]) {
+
+            if (this.checkForCollision(dir)) continue;
+            possibleDirections.push(dir);
+        }
+        return possibleDirections;
+    }
+
+    static createLamaAgent(lama: LamaInterface) {
         const lamaAgent = new LamaAgent(lama.pos, lama.size);
         return lamaAgent;
     }
-    
+
     getKeys(p5: P5) {
         return {
             up: false,
@@ -33,10 +45,10 @@ class LamaAgent extends Lama {
         };
     }
 
-    
+
     listenForKeys(dir: GameMove) {
         const power = 1;
-        switch(dir){
+        switch (dir) {
             case 'up':
                 this.queuedir = new Vector(0, -power);
                 break;
@@ -53,7 +65,7 @@ class LamaAgent extends Lama {
 
     }
 
-   
+
 
 
     // update(){
@@ -75,7 +87,7 @@ class LamaAgent extends Lama {
     // }
 
 
-   
+
 }
 
 
